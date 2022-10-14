@@ -101,32 +101,21 @@ void Game::processInput(){
         switch (e.key.keysym.sym)
         {
         case SDLK_RIGHT:
-            ship_.setXSpeed(SPEED);
+            ship_.accelRight();
             break;
         case SDLK_LEFT:
-            ship_.setXSpeed(-1 * SPEED);
+            ship_.accelLeft();
             break;
         case SDLK_UP:
-            ship_.setYSpeed(-1 * SPEED);
-            
+            ship_.accelUp();
             break;
         case SDLK_DOWN:
-            ship_.setYSpeed(SPEED);
+            ship_.accelDown();
             break;
         default:
-            ship_.setXSpeed(0);
-            ship_.setYSpeed(0);
             break;
         }
     }
-    
-    if (e.type == SDL_KEYUP){
-        // Todo replace with stop!
-        ship_.setXSpeed(0);
-        ship_.setYSpeed(0);
-
-    }
-        
     
     return;
 

@@ -10,6 +10,7 @@
 namespace space_invaders{
 
     enum class GameState{Running, Stopped};
+    
      
     class Game{
     public:
@@ -25,7 +26,7 @@ namespace space_invaders{
         const int width_ ;
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
-        const int SPEED = 10;
+        const int MAX_SPEED = 10;
         Renderer renderer_{width_, height_};
         std::vector<DrawableEntity> entities_;
         GameState state_;
