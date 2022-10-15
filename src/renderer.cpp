@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <ctime>
+#include <memory>
 
 #include "renderer.h"
 
@@ -87,15 +88,15 @@ void Renderer::renderTexture(SDL_Texture *tex, int x, int y){
 	SDL_RenderCopy(renderer_, tex, NULL, &dst);
 }
 
-bool Renderer::render(std::vector<DrawableEntity> &entities)
+bool Renderer::render(std::vector<std::shared_ptr<MovingEntity>> &entities)
 {
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
 
     for (auto &entity:entities){
-        Pose pose = entity.getPose();
-        if (entity.isImageType()){
-            SDL_Texture *image = loadTexture(entity.getImagePath());
+        Pose pose = entity->getPose();
+        if (entity->isImageType()){
+            SDL_Texture *image = loadTexture(entity->getImagePath());
             if (image == nullptr){
                 return false;
             }
@@ -105,7 +106,7 @@ bool Renderer::render(std::vector<DrawableEntity> &entities)
             renderTexture(image, std::min<int>(pose.x, width_ - iW), std::min(pose.y, height_ - iH));
         }
         else{
-            for (auto &rect:entity.getRects()){
+            for (auto &rect:entity->getRects()){
                 SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
                 rect.rect.x += pose.x;
                 rect.rect.y += pose.y;

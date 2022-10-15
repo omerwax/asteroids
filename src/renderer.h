@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#include "drawable_entity.h"
+#include "moving_entity.h"
 
 
 namespace space_invaders
@@ -18,7 +18,7 @@ namespace space_invaders
         Renderer() = delete;
         ~Renderer();
         bool init();
-        bool render(std::vector<DrawableEntity> &entities);
+        bool render(std::vector<std::shared_ptr<MovingEntity>> &entities);
         bool render(std::vector<SDL_Rect> &rects);
         void getImageSize(std::string image_path, int &w, int &h);
         bool isInitiated(){return initiated_;}

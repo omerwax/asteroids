@@ -5,7 +5,7 @@
 #include <random>
 
 #include "game.h"
-#include "ship.h"
+#include "spaceship.h"
 
 
 
@@ -18,24 +18,27 @@ bool Game::init()
     
     
     DrawableRect rect;
-    // Define the ship shape by a group of rectangles
+    // Define the spaceship shape by a group of rectangles
+    spaceship_ = std::make_shared<Spaceship>();
     rect.rect = {30, 0, 30, 30};
     rect.color = {255, 0, 0, 0};
-    ship_.addRect(rect);
+    spaceship_->addRect(rect);
     rect.rect = {0, 30, 90, 30};
     rect.color = {255, 255, 0, 0};
-    ship_.addRect(rect);
+    spaceship_->addRect(rect);
 
 
-    // Add the ship image
+    // Add the spaceship image
     int w, h;
-    ship_.setImage("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/xwing.bmp");
+    spaceship_->setImage("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/xwing.bmp");
     
     // get image size from the renderer
-    renderer_.getImageSize(ship_.getImagePath(), w, h);
+    renderer_.getImageSize(spaceship_->getImagePath(), w, h);
 
-    ship_.setWidth(w);
-    ship_.setHeight(h);
+    spaceship_->setWidth(w);
+    spaceship_->setHeight(h);
+
+    entities_.emplace_back(spaceship_);
 }
 
 void Game::render()
@@ -79,22 +82,29 @@ void Game::run()
 
 void Game::update()
 {
-        
-    auto pose = ship_.getPose();
-    pose.x += ship_.getXSpeed();
-    pose.x = std::min(pose.x, width_ - ship_.getWidth());
-    pose.x = std::max(pose.x, 0);
-
-    pose.y += ship_.getYSpeed();
-    pose.y = std::min(pose.y, height_ - ship_.getHeight());
-    pose.y = std::max(pose.y, 0);
-
-    ship_.setPose(std::move(pose));
-
-    
+       
     entities_.clear();
-    entities_.emplace_back(ship_); 
-    
+
+    // update spaceship pose
+    spaceship_->updatePose();
+    entities_.emplace_back(spaceship_);
+
+
+    // Update all missile, delete ones that are out of scope(screen)
+    auto it = missiles_.begin();
+    while ( it != missiles_.end()){
+        (*it)->updatePose();
+        // check if missile is out of screen
+        if ((*it)->isAlive()){
+            entities_.emplace_back(*it);
+            it++;
+        }
+        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+            missiles_.erase(it);
+        }
+    }
+        
+       
 }
 
 
@@ -114,16 +124,19 @@ void Game::processInput(){
         switch (e.key.keysym.sym)
         {
         case SDLK_RIGHT:
-            ship_.accelRight();
+            spaceship_->accelRight();
             break;
         case SDLK_LEFT:
-            ship_.accelLeft();
+            spaceship_->accelLeft();
             break;
         case SDLK_UP:
-            ship_.accelUp();
+            spaceship_->accelUp();
             break;
         case SDLK_DOWN:
-            ship_.accelDown();
+            spaceship_->accelDown();
+            break;
+        case SDLK_SPACE:
+            missiles_.emplace_back(spaceship_->shoot());
             break;
         default:
             break;

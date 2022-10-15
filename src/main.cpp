@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
     
        
-	Game game(640, 480, 60);
+	Game game(60);
     game.init();
     game.run();
 

@@ -42,8 +42,8 @@ namespace space_invaders
         std::vector<DrawableRect> getRects() { return rects_; }
         void addRect(DrawableRect rect){ rects_.emplace_back(rect); }
 
-    private:
-        int width_, height_;
+    protected:
+        int width_, height_, window_width_, window_height_;
         bool image_type_;
         std::string image_path_;
         std::vector<DrawableRect> rects_;

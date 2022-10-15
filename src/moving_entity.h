@@ -14,9 +14,10 @@ namespace space_invaders
     class MovingEntity : public DrawableEntity {
     public:
         MovingEntity() : speed_(0, 0){}
-        void setSpeed(Speed &s) { speed_ = s; }
+        void setSpeed(Speed &&s) { speed_ = s; }
         int getXSpeed(){ return speed_.x; }
         int getYSpeed(){ return speed_.y; }
+        void updatePose();
 
     protected:
         const int MAX_SPEED = 5;
