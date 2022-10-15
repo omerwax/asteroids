@@ -1,7 +1,7 @@
 #include "missile.h"
 #include "game.h"
 
-using namespace space_invaders;
+using namespace asteroids;
 
 void Missile::updatePose()
 {

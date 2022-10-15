@@ -9,7 +9,7 @@
 
 
 
-using namespace space_invaders;
+using namespace asteroids;
 
 bool Game::init()
 {
@@ -51,15 +51,15 @@ void Game::run()
 {
     int frame = 0;
 
-    //Main loop flag
-
+    start_ = std::chrono::system_clock::now();
+    
     //Event handler
     SDL_Event e;
 
+    createAstroid();
+    
+    // The main game loop
     while (state_ == GameState::Running){
-
-              
-        // The main game loop
 
         // get the current time
         auto start = std::chrono::system_clock::now(); 
@@ -70,9 +70,9 @@ void Game::run()
         if (sleep_time > 0)
             std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
         
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        auto frame_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
 
-        auto actual_fps = 1000.0 / duration.count();
+        auto actual_fps = 1000.0 / frame_duration.count();
         ++frame;
         if (actual_fps < fps_ - 5)
             std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps << std::endl;
@@ -103,8 +103,29 @@ void Game::update()
             missiles_.erase(it);
         }
     }
+
+    auto game_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_);
+
+    // create a new asteroid every 5 seconds;
+    if (game_duration.count()  % 10000 <= MS_PER_FRAME_)
+        createAstroid();
+
+    // Update all Steroids, delete ones that are out of scope (Blasted)
+    auto it_s = asteroids_.begin();
+    while ( it_s != asteroids_.end()){
+        (*it_s)->updatePose();
+        // check if missile is out of screen
+        if ((*it_s)->isAlive()){
+            entities_.emplace_back(*it_s);
+            it_s++;
+        }
+        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+            asteroids_.erase(it_s);
+        }
+    }
+
+    
         
-       
 }
 
 
@@ -144,5 +165,39 @@ void Game::processInput(){
     }
     
     return;
+
+}
+
+void Game::createAstroid()
+{
+    auto asteroid = std::make_shared<Asteroid>();
+    DrawableRect rect;
+    rect.color = {0, 0, 255, 0};
+    rect.rect = {20,0,10,5};
+    asteroid->addRect(rect);
+    rect.rect = {10,5,30,10};
+    asteroid->addRect(rect);
+    rect.rect = {0,15,50,20};
+    asteroid->addRect(rect);
+    rect.rect = {10,35,30,10};
+    asteroid->addRect(rect);
+    rect.rect = {20,45,10,5};
+
+    asteroid->addRect(rect);
+    asteroid->setHeight(50);
+    asteroid->setWidth(50);
+
+    std::mt19937 mt(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()- start_).count());
+    std::uniform_int_distribution<int> dist(0, std::max(WINDOW_HEIGHT, WINDOW_WIDTH));
+    Pose pose;
+    
+    pose.x = dist(mt)% WINDOW_WIDTH; 
+    pose.y = dist(mt) % WINDOW_HEIGHT;
+
+    asteroid->setPose(Pose(dist(mt)% WINDOW_WIDTH, dist(mt)% WINDOW_HEIGHT));
+
+    asteroid->setSpeed(Speed(dist(mt) % MAX_SPEED, dist(mt)% MAX_SPEED));
+    
+    asteroids_.emplace_back(asteroid);
 
 }

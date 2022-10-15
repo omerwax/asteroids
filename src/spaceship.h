@@ -1,5 +1,5 @@
-#ifndef SPACE_INVADERS_SPACESHIP_H
-#define SPACE_INVADERS_SPACESHIP_H
+#ifndef ASTEROIDS_SPACESHIP_H
+#define ASTEROIDS_SPACESHIP_H
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 #include "moving_entity.h"
 #include "missile.h"
 
-namespace space_invaders
+namespace asteroids
 {
     
     class Spaceship : public MovingEntity {

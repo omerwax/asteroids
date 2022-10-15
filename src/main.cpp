@@ -5,7 +5,7 @@
 #include "renderer.h"
 
 
-using namespace space_invaders;
+using namespace asteroids;
 
 int main(int argc, char* argv[])
 {

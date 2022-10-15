@@ -1,15 +1,16 @@
-#ifndef SPACE_INVADERS_DRAWABLE_ENTITY_H
-#define SPACE_INVADERS_DRAWABLE_ENTITY_H
+#ifndef ASTEROIDS_DRAWABLE_ENTITY_H
+#define ASTEROIDS_DRAWABLE_ENTITY_H
 
 #include <string>
 #include <vector>
 #include <utility>
 #include <SDL2/SDL.h>
 
-namespace space_invaders
+namespace asteroids
 {
     struct Pose{
         Pose(): x(0), y(0), rot(0.0){}
+        Pose(int x_, int y_) : x(x_), y(y_), rot(0.0){}
         int x,y;
         float rot;
     };

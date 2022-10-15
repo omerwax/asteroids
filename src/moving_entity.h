@@ -1,5 +1,5 @@
-#ifndef SPACE_INVADERS_MOVING_ENTITY_H
-#define SPACE_INVADERS_MOVING_ENTITY_H
+#ifndef ASTEROIDS_MOVING_ENTITY_H
+#define ASTEROIDS_MOVING_ENTITY_H
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 
 #include "drawable_entity.h"
 
-namespace space_invaders
+namespace asteroids
 {
     
     

@@ -7,7 +7,7 @@
 
 
 
-using namespace space_invaders;
+using namespace asteroids;
 
 Renderer::Renderer(int window_width, int window_height) : 
     width_(window_width), height_(window_height), 
@@ -88,7 +88,7 @@ void Renderer::renderTexture(SDL_Texture *tex, int x, int y){
 	SDL_RenderCopy(renderer_, tex, NULL, &dst);
 }
 
-bool Renderer::render(std::vector<std::shared_ptr<MovingEntity>> &entities)
+bool Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
 {
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);

@@ -1,5 +1,5 @@
-#ifndef ASTEROIDS_MISSILE_H
-#define ASTEROIDS_MISSILE_H
+#ifndef ASTEROIDS_ASTEROID_H
+#define ASTEROIDS_ASTEROID_H
 
 #include <string>
 #include <vector>
@@ -10,9 +10,9 @@
 namespace asteroids
 {
     
-    class Missile : public MovingEntity {
+    class Asteroid : public MovingEntity {
     public:
-        Missile() : alive_(true){}
+        Asteroid() : alive_(true){}
         void updatePose();
         bool isAlive() { return alive_; }
     private:

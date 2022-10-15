@@ -1,5 +1,5 @@
-#ifndef SPACE_INVADERS_RENDERER_H
-#define SPACE_INVADERS_RENDERER_H
+#ifndef ASTEROIDS_RENDERER_H
+#define ASTEROIDS_RENDERER_H
 
 #include <string>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "moving_entity.h"
 
 
-namespace space_invaders
+namespace asteroids
 {
     class Renderer{
     public:
@@ -18,7 +18,7 @@ namespace space_invaders
         Renderer() = delete;
         ~Renderer();
         bool init();
-        bool render(std::vector<std::shared_ptr<MovingEntity>> &entities);
+        bool render(std::vector<std::shared_ptr<DrawableEntity>> &entities);
         bool render(std::vector<SDL_Rect> &rects);
         void getImageSize(std::string image_path, int &w, int &h);
         bool isInitiated(){return initiated_;}

@@ -1,7 +1,7 @@
 #include "spaceship.h"
 #include "game.h"
 
-using namespace space_invaders;
+using namespace asteroids;
 
 
 std::shared_ptr<Missile> Spaceship::shoot()
