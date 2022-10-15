@@ -89,27 +89,42 @@ void Renderer::renderTexture(SDL_Texture *tex, int x, int y){
 
 bool Renderer::render(std::vector<DrawableEntity> &entities)
 {
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
 
-    for (auto &entity:entities)
-    {
-        SDL_Texture *image = loadTexture(entity.getImagePath());
-        if (image == nullptr){
-            return false;
-        }
-        int iW, iH;
-        SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-
+    for (auto &entity:entities){
         Pose pose = entity.getPose();
-        renderTexture(image, std::min<int>(pose.x, width_ - iW), std::min(pose.y, height_ - iH));
+        if (entity.isImageType()){
+            SDL_Texture *image = loadTexture(entity.getImagePath());
+            if (image == nullptr){
+                return false;
+            }
+            int iW, iH;
+            SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
 
-        
+            renderTexture(image, std::min<int>(pose.x, width_ - iW), std::min(pose.y, height_ - iH));
+        }
+        else{
+            for (auto &rect:entity.getRects()){
+                SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+                rect.rect.x += pose.x;
+                rect.rect.y += pose.y;
+                SDL_RenderFillRect(renderer_, &rect.rect);
+                rect.rect.x -= pose.x;
+                rect.rect.y -= pose.y;
+            }
+
+        }
     }
 
     //Update the screen
     SDL_RenderPresent(renderer_);
 
+    return true;
+
 }
+
+
 void Renderer::getImageSize(std::string image_path, int &w, int &h)
 {
     SDL_Texture *image = loadTexture(image_path);

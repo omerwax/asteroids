@@ -8,6 +8,7 @@
 #include "ship.h"
 
 
+
 using namespace space_invaders;
 
 bool Game::init()
@@ -15,10 +16,22 @@ bool Game::init()
     if (!renderer_.init())
         return false;
     
-    ship_.setImage("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/xwing.bmp");
+    
+    DrawableRect rect;
+    // Define the ship shape by a group of rectangles
+    rect.rect = {30, 0, 30, 30};
+    rect.color = {255, 0, 0, 0};
+    ship_.addRect(rect);
+    rect.rect = {0, 30, 90, 30};
+    rect.color = {255, 255, 0, 0};
+    ship_.addRect(rect);
 
+
+    // Add the ship image
     int w, h;
-
+    ship_.setImage("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/xwing.bmp");
+    
+    // get image size from the renderer
     renderer_.getImageSize(ship_.getImagePath(), w, h);
 
     ship_.setWidth(w);

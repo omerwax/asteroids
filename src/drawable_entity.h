@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include <SDL2/SDL.h>
 
 namespace space_invaders
@@ -12,11 +13,23 @@ namespace space_invaders
         int x,y;
         float rot;
     };
+    struct DrawableRect{
+        SDL_Rect rect = {0,0,0,0};
+        SDL_Color color {0,0,0,0};
+    };
+
+    struct Speed{
+        int x;
+        int y;
+        Speed(int x, int y) : x(x), y(y){}
+    };
+
+    enum class EntityType{IMAGE, RECTS};
     
     class DrawableEntity{
     public:
-        DrawableEntity() : image_path_(std::string()), draw_image_(false){}
-        DrawableEntity(std::string image_path) : image_path_(image_path), draw_image_(false){}
+        DrawableEntity() : image_path_(std::string()), image_type_(false){}
+        DrawableEntity(std::string image_path) : image_path_(image_path), image_type_(false){}
         void setImage(std::string image_path);
         std::string getImagePath(){ return image_path_; }
         Pose getPose(){ return pose_;}
@@ -25,11 +38,15 @@ namespace space_invaders
         int getHeight() { return width_; }
         void setWidth(int w) { width_ = w; }
         void setHeight(int h) { height_ = h; }
+        bool isImageType()  { return image_type_; }
+        std::vector<DrawableRect> getRects() { return rects_; }
+        void addRect(DrawableRect rect){ rects_.emplace_back(rect); }
 
     private:
         int width_, height_;
-        bool draw_image_;
+        bool image_type_;
         std::string image_path_;
+        std::vector<DrawableRect> rects_;
         Pose pose_;
     };
 
