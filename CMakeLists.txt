@@ -7,18 +7,25 @@ add_definitions(-std=c++17)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-project(SpaceInvaders)
+project(Asteroids)
+
+# Add SDL2 CMake modules
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(SDL2 REQUIRED)
-message("SDL2_INCLUDE PATH = " ${SDL2_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS} src)
 
 file(GLOB src_files "src/*.cpp")
 
+# Add SDL2_ttf library
+find_package(SDL2_ttf REQUIRED)
+
+
 #print (${src_files})
 
-add_executable(space-invaders ${src_files})
-string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-target_link_libraries(space-invaders ${SDL2_LIBRARIES})
+add_executable(asteroids ${src_files})
+# string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
+target_link_libraries(asteroids ${SDL2_LIBRARIES})
+target_link_libraries(asteroids SDL2::TTF) 

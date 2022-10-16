@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <sstream>
 
 #include "game.h"
 #include "spaceship.h"
@@ -61,10 +62,10 @@ void Game::run()
         
         auto frame_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
 
-        auto actual_fps = 1000.0 / frame_duration.count();
+        actual_fps_ = 1000.0 / frame_duration.count();
         ++frame;
-        if (actual_fps < fps_ - 5)
-            std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps << std::endl;
+        if (actual_fps_ < fps_ - 5)
+            std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps_ << std::endl;
     }
 
 }
@@ -96,7 +97,7 @@ void Game::update()
     auto game_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_);
 
     // create a new asteroid every 5 seconds;
-    if (game_duration.count()  % 10000 <= MS_PER_FRAME_)
+    if (game_duration.count()  % 5000 <= MS_PER_FRAME_)
         createAstroid();
 
     // Update all Steroids, delete ones that are out of scope (Blasted)
@@ -119,6 +120,28 @@ void Game::update()
     }
 
     checkHits();
+
+    
+    auto message = std::make_shared<DrawableEntity>();
+    DrawableText message_text;
+    std::stringstream  text;
+    text  << "SCORE: " << score_ ;//<< ", FPS: " << actual_fps_;
+    message_text.text = text.str();
+    message_text.color = {255, 255, 255, 0};
+    message_text.rect = {0, 0, 320, 60};
+
+    message->addText(std::move(message_text));
+    
+    text.str("");
+    text.clear();
+
+    text << "FPS: " << actual_fps_;
+    message_text.text = text.str();
+    message_text.rect = {960, 0, 320, 60};
+
+    message->addText(std::move(message_text));
+
+    entities_.emplace_back(message);
     
         
 }
@@ -152,7 +175,13 @@ void Game::processInput(){
             spaceship_->accelDown();
             break;
         case SDLK_SPACE:
-            missiles_.emplace_back(spaceship_->shoot());
+            // Limit shooting speed
+            if (std::chrono::duration_cast<std::chrono::milliseconds>
+                (std::chrono::system_clock::now() - shot_time_).count() > MIN_SHOOTING_SPEED_MS)
+            {
+                missiles_.emplace_back(spaceship_->shoot());
+                shot_time_ = std::chrono::system_clock::now();
+            }
             break;
         default:
             break;
@@ -248,40 +277,50 @@ void Game::checkHits()
         return ;
     }
     
+    
+    
+        
     // Iterate through asteroids
-    for (auto &asteroid:asteroids_){
+    for (auto &missile:missiles_){
+        
         // get the Asteroid rects
-            auto as_rects = asteroid->getRects();
-        // iterate through Asteroid rects
-        for (auto &as_rect:as_rects){
+        auto mi_rects = missile->getRects();
+        // iterate through missile rects
+        for (auto &mi_rect:mi_rects){
             
             SDL_Rect rect1;
-            rect1 = as_rect.rect;
-            rect1.x += asteroid->getPose().x;
-            rect1.y += asteroid->getPose().y;
+            rect1 = mi_rect.rect;
+            rect1.x += missile->getPose().x;
+            rect1.y += missile->getPose().y;
 
-            
-            for (auto &missile:missiles_){
+            for (auto &asteroid:asteroids_){
 
-                auto mi_rects = missile->getRects();
+                // Make sure Asteroid was not already hit;
+                if (asteroid->isAlive() == false)
+                    continue;
+                
+                auto as_rects = asteroid->getRects();
 
-                // Iterate through missile rects & check collisions with each asteroid rects
-                for (auto & mi_rect:mi_rects){
+                // Iterate through asteroid rects & check collisions with each asteroid rects
+                for (auto & as_rect:as_rects){
                 
                     SDL_Rect rect2;
-                    rect2 = mi_rect.rect;
-                    rect2.x += missile->getPose().x;
-                    rect2.y += missile->getPose().y;
+                    rect2 = as_rect.rect;
+                    rect2.x += asteroid->getPose().x;
+                    rect2.y += asteroid->getPose().y;
                     
                     // Check for collision
                     if (SDL_HasIntersection(&(rect1),&(rect2))){
-                        missile->explode();
                         asteroid->explode();
-                        std::cout << "Missile Hit" << std::endl;                  
+                        missile->explode();
+                        std::cout << "Missile Hit" << std::endl;  
+                        score_ += 100;                
                     }
                 }
             }
         }
     }
+    
+       
     return;
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <chrono>
 #include <SDL2/SDL.h>
 
 
@@ -15,7 +16,7 @@ namespace asteroids
     
     class Spaceship : public MovingEntity {
     public:
-        Spaceship() {max_speed_ = 3; accel_ = 1;}
+        Spaceship(); 
         void accelRight(){ speed_.x = std::min(max_speed_, speed_.x + accel_); }
         void accelLeft(){ speed_.x = std::max(-1 * max_speed_, speed_.x - accel_); }
         void accelDown(){ speed_.y = std::min(max_speed_, speed_.y + accel_); }
@@ -26,7 +27,8 @@ namespace asteroids
         
             
     private:
-        
+
+      
     };
 
 }

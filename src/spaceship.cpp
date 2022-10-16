@@ -4,13 +4,19 @@
 using namespace asteroids;
 
 
+Spaceship::Spaceship()
+{
+    max_speed_ = 3; accel_ = 3;
+}
+
 std::shared_ptr<Missile> Spaceship::shoot()
 {
+    
     auto missile = std::make_shared<Missile>();
+
     DrawableRect rect;
     Pose pose = this->getPose();
-    
-       
+           
     rect.rect = {getWidth() / 2 - 6, - 20, 6, 20};
     rect.color = {128, 128, 128, 0};
     missile->setWidth(6);

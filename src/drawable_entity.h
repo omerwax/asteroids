@@ -19,6 +19,12 @@ namespace asteroids
         SDL_Color color {0,0,0,0};
     };
 
+    struct DrawableText{
+        SDL_Rect rect = {0,0,0,0};
+        SDL_Color color {0,0,0,0};
+        std::string text;
+    };
+
     struct Speed{
         int x;
         int y;
@@ -29,25 +35,22 @@ namespace asteroids
     
     class DrawableEntity{
     public:
-        DrawableEntity() : image_path_(std::string()), image_type_(false){}
-        DrawableEntity(std::string image_path) : image_path_(image_path), image_type_(false){}
-        void setImage(std::string image_path);
-        std::string getImagePath(){ return image_path_; }
+        DrawableEntity(){}
         Pose getPose(){ return pose_;}
         void setPose(Pose &&pose){pose_ = pose;}
         int getWidth() { return width_; }
         int getHeight() { return width_; }
         void setWidth(int w) { width_ = w; }
         void setHeight(int h) { height_ = h; }
-        bool isImageType()  { return image_type_; }
         std::vector<DrawableRect> getRects() { return rects_; }
+        std::vector<DrawableText> getTexts() { return texts_; }
         void addRect(DrawableRect rect){ rects_.emplace_back(rect); }
+        void addText(DrawableText &&text){ texts_.emplace_back(text); }
 
     protected:
         int width_, height_, window_width_, window_height_;
-        bool image_type_;
-        std::string image_path_;
         std::vector<DrawableRect> rects_;
+        std::vector<DrawableText> texts_;
         Pose pose_;
     };
 

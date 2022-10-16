@@ -12,16 +12,18 @@
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+#define MIN_SHOOTING_SPEED_MS 200
 
 
 namespace asteroids{
 
-    enum class GameState{Running, Stopped};
+    enum class GameState{Running, GameOver, Stopped};
     
      
     class Game{
     public:
-        Game(int fps) : fps_(fps), width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), state_(GameState::Running){};
+        Game(int fps) : fps_(fps), width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
+                        state_(GameState::Running), score_(0){};
         bool init();
         void run();
         
@@ -41,6 +43,8 @@ namespace asteroids{
         std::vector<std::shared_ptr<DrawableEntity>> entities_;
 
         int fps_;
+        int actual_fps_;
+        int score_;
         const int width_ ;
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
@@ -49,8 +53,8 @@ namespace asteroids{
         GameState state_;
 
         std::chrono::time_point<std::chrono::system_clock> start_;
+        std::chrono::time_point<std::chrono::system_clock> shot_time_;
         
-
     };
 }
 

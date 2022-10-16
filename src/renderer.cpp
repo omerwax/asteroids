@@ -38,6 +38,13 @@ bool Renderer::init()
         return false;
     }
 
+    TTF_Init();
+
+    font_ = TTF_OpenFont("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/fonts/FreeSans.ttf", 24);
+
+    if (font_ == NULL)
+        return false;
+    
     this->initiated_ = true;
 
     return true;
@@ -45,11 +52,12 @@ bool Renderer::init()
 
 Renderer::~Renderer()
 {
-    std::cout<< "Renderer::~Renderer()::Inside" << std::endl;
+    std::cout<< "Renderer::~Renderer()" << std::endl;
     if (initiated_){
         SDL_DestroyRenderer(renderer_);
         SDL_DestroyWindow(window_);
         SDL_Quit();
+        TTF_Quit();
     }
     
 }
@@ -95,29 +103,23 @@ bool Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
 
     for (auto &entity:entities){
         Pose pose = entity->getPose();
-        if (entity->isImageType()){
-            SDL_Texture *image = loadTexture(entity->getImagePath());
-            if (image == nullptr){
-                return false;
-            }
-            int iW, iH;
-            SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-
-            renderTexture(image, std::min<int>(pose.x, width_ - iW), std::min(pose.y, height_ - iH));
+        // Render the rects
+        for (auto &rect:entity->getRects()){
+            SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+            rect.rect.x += pose.x;
+            rect.rect.y += pose.y;
+            SDL_RenderFillRect(renderer_, &rect.rect);
+            rect.rect.x -= pose.x;
+            rect.rect.y -= pose.y;
         }
-        else{
-            for (auto &rect:entity->getRects()){
-                SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
-                rect.rect.x += pose.x;
-                rect.rect.y += pose.y;
-                SDL_RenderFillRect(renderer_, &rect.rect);
-                rect.rect.x -= pose.x;
-                rect.rect.y -= pose.y;
-            }
-
+        for (auto &text:entity->getTexts()){
+            auto texture = createTextureFromText(text.text, text.color);
+            SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
+                    
         }
     }
 
+  
     //Update the screen
     SDL_RenderPresent(renderer_);
 
@@ -135,4 +137,23 @@ void Renderer::getImageSize(std::string image_path, int &w, int &h)
 
 
 
+SDL_Texture* Renderer::createTextureFromText(std::string text, SDL_Color)
+{
+   
+    SDL_Surface * surface;
+    SDL_Color text_color = {255, 255, 255, 0};
+    
+    surface = TTF_RenderText_Solid(font_, text.c_str(), text_color);
+
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_, surface);
+
+    SDL_FreeSurface(surface);
+
+    int text_width = surface->w;
+    int text_height = surface->h;
+
+    SDL_Rect rect = {640, 360, text_width, text_height};
+
+    return texture;
+}
 
