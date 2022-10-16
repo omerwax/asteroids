@@ -7,18 +7,16 @@
 #include "game.h"
 #include "spaceship.h"
 
-
-
 using namespace asteroids;
 
 bool Game::init()
 {
     if (!renderer_.init())
         return false;
-    
-    
+        
     DrawableRect rect;
-    // Define the spaceship shape by a group of rectangles
+    
+    // Create a spaceship shape by a group of rectangles
     spaceship_ = std::make_shared<Spaceship>();
     rect.rect = {30, 0, 30, 30};
     rect.color = {255, 0, 0, 0};
@@ -27,23 +25,16 @@ bool Game::init()
     rect.color = {255, 255, 0, 0};
     spaceship_->addRect(rect);
 
+    spaceship_->setWidth(90);
+    spaceship_->setHeight(60);
 
-    // Add the spaceship image
-    int w, h;
-    spaceship_->setImage("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/xwing.bmp");
-    
-    // get image size from the renderer
-    renderer_.getImageSize(spaceship_->getImagePath(), w, h);
-
-    spaceship_->setWidth(w);
-    spaceship_->setHeight(h);
+    spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
 
     entities_.emplace_back(spaceship_);
 }
 
 void Game::render()
 {
-    //renderer_.display_image("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/images/image.bmp");
     renderer_.render(entities_);
 }
 
@@ -56,8 +47,6 @@ void Game::run()
     //Event handler
     SDL_Event e;
 
-    createAstroid();
-    
     // The main game loop
     while (state_ == GameState::Running){
 
@@ -124,6 +113,12 @@ void Game::update()
         }
     }
 
+    if (checkCollisions()){
+        std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
+        state_ = GameState::Stopped;
+    }
+
+    checkHits();
     
         
 }
@@ -194,10 +189,99 @@ void Game::createAstroid()
     pose.x = dist(mt)% WINDOW_WIDTH; 
     pose.y = dist(mt) % WINDOW_HEIGHT;
 
-    asteroid->setPose(Pose(dist(mt)% WINDOW_WIDTH, dist(mt)% WINDOW_HEIGHT));
+    asteroid->setPose(Pose(dist(mt)% WINDOW_WIDTH, asteroid->getHeight() / 2));
 
-    asteroid->setSpeed(Speed(dist(mt) % MAX_SPEED, dist(mt)% MAX_SPEED));
+    asteroid->setSpeed(Speed(dist(mt) % max_speed_, dist(mt)% max_speed_));
     
     asteroids_.emplace_back(asteroid);
 
+}
+
+// check Spaceship collision with asteroids
+bool Game::checkCollisions(){
+    
+    // Check if there are any asteroids
+
+    if (asteroids_.size() == 0){
+        return false;
+    }
+    
+    // Get the spaceship rectangles
+    auto sp_rects = spaceship_->getRects();
+    
+    // Iterate through asteroids
+    for (auto &asteroid:asteroids_){
+        // get the Asteroid rects
+        auto as_rects = asteroid->getRects();
+        // iterate through Asterois rects
+        for (auto &as_rect:as_rects){
+            
+            SDL_Rect rect1;
+            rect1 = as_rect.rect;
+            rect1.x += asteroid->getPose().x;
+            rect1.y += asteroid->getPose().y;
+
+            // Iterate through the spaceship rects & chack collisions with each asteroid rects
+            for (auto & sp_rect:sp_rects){
+                
+                SDL_Rect rect2;
+                rect2 = sp_rect.rect;
+                rect2.x += spaceship_->getPose().x;
+                rect2.y += spaceship_->getPose().y;
+                
+                // Check for collision
+                if (SDL_HasIntersection(&(rect1),&(rect2)))
+                    return true;
+
+            }
+        }
+    }
+
+    return false;
+}
+
+void Game::checkHits()
+{
+    
+    // Check if there are any asteroids or missiles
+    if (missiles_.size() == 0 || asteroids_.size() == 0){
+        return ;
+    }
+    
+    // Iterate through asteroids
+    for (auto &asteroid:asteroids_){
+        // get the Asteroid rects
+            auto as_rects = asteroid->getRects();
+        // iterate through Asteroid rects
+        for (auto &as_rect:as_rects){
+            
+            SDL_Rect rect1;
+            rect1 = as_rect.rect;
+            rect1.x += asteroid->getPose().x;
+            rect1.y += asteroid->getPose().y;
+
+            
+            for (auto &missile:missiles_){
+
+                auto mi_rects = missile->getRects();
+
+                // Iterate through missile rects & check collisions with each asteroid rects
+                for (auto & mi_rect:mi_rects){
+                
+                    SDL_Rect rect2;
+                    rect2 = mi_rect.rect;
+                    rect2.x += missile->getPose().x;
+                    rect2.y += missile->getPose().y;
+                    
+                    // Check for collision
+                    if (SDL_HasIntersection(&(rect1),&(rect2))){
+                        missile->explode();
+                        asteroid->explode();
+                        std::cout << "Missile Hit" << std::endl;                  
+                    }
+                }
+            }
+        }
+    }
+    return;
 }

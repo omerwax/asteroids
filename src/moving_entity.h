@@ -14,14 +14,14 @@ namespace asteroids
     class MovingEntity : public DrawableEntity {
     public:
         MovingEntity() : speed_(0, 0){}
-        void setSpeed(Speed &&s) { speed_ = s; }
+        void setSpeed(Speed &&s) { speed_.x = s.x % max_speed_; speed_.y = s.y % max_speed_ ;}
         int getXSpeed(){ return speed_.x; }
         int getYSpeed(){ return speed_.y; }
         void updatePose();
 
     protected:
-        const int MAX_SPEED = 5;
-        const int ACCEL = 1;
+        int max_speed_;
+        int accel_;
         Speed speed_;
     };
 

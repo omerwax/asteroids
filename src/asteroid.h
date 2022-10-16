@@ -12,8 +12,9 @@ namespace asteroids
     
     class Asteroid : public MovingEntity {
     public:
-        Asteroid() : alive_(true){}
+        Asteroid() : alive_(true){ max_speed_ = 2; accel_ = 1; }
         void updatePose();
+        void explode() { alive_ = false; }
         bool isAlive() { return alive_; }
     private:
         bool alive_;

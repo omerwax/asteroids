@@ -31,6 +31,9 @@ namespace asteroids{
         void render();
         void update();
         void createAstroid();
+        bool checkCollisions();
+        void checkHits();
+        
                 
         std::shared_ptr<Spaceship> spaceship_;
         std::vector<std::shared_ptr<Missile>> missiles_;
@@ -41,7 +44,7 @@ namespace asteroids{
         const int width_ ;
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
-        const int MAX_SPEED = 10;
+        const int max_speed_ = 10;
         Renderer renderer_{width_, height_};
         GameState state_;
 
