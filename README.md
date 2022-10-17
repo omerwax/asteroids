@@ -44,7 +44,7 @@ make
 - src/ - a folder that contains all the source code and header files required for this project
 - fonts/ - folder that contains TrueType font files required for text rendering
 - cmake/ - a folder that contains cmake modules for finding SDL2 and SDL2_ttf libs automatically, 
-           taken from [here](git@github.com:aminosbh/sdl2-cmake-modules.git)
+           taken from [here](https://github.com/toivjon/sdl2-space-invaders)
 - CmakeLists.txt - Cmake file for project build configuration
 - README.md - this readme file
 
