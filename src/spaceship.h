@@ -1,6 +1,9 @@
 #ifndef ASTEROIDS_SPACESHIP_H
 #define ASTEROIDS_SPACESHIP_H
 
+#define MIN_SHOOTING_SPEED_MS 150
+
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -23,10 +26,11 @@ namespace asteroids
         void accelUp(){ speed_.y = std::max(speed_.y - accel_,  - 1 * max_speed_); }
         void stop(){ speed_ = Speed(0,0); }
         void updatePose() override;
-        std::shared_ptr<Missile> shoot();
+        void shoot(std::shared_ptr<Missile> &missile);
         
             
     private:
+        std::chrono::time_point<std::chrono::system_clock> shot_time_;
 
       
     };

@@ -54,7 +54,7 @@ void Game::run()
     int frame = 0;
 
     start_ = std::chrono::system_clock::now();
-    asteroid_time_ = start_; shot_time_ = start_;
+    asteroid_time_ = start_; 
 
     
     //Event handler
@@ -88,6 +88,12 @@ void Game::run()
 void Game::update()
 {
        
+    if (state_ == GameState::Paused)
+    {
+        return;
+    }
+    
+    
     entities_.clear();
 
     //Create the enities for the game start screen
@@ -137,15 +143,13 @@ void Game::update()
         return;
 
     }
-    else if (state_ == GameState::Running){
+    if (state_ == GameState::Running){
         // update spaceship pose
         spaceship_->updatePose();
         entities_.emplace_back(spaceship_);
 
         // update level according to score
-        if (score_ % 1000 == 0 && score_ != 0)
-            level_ ++;
-
+        level_  = score_ / 1000;;
 
         // Update all missile, delete ones that are out of scope(screen)
         auto it = missiles_.begin();
@@ -161,10 +165,11 @@ void Game::update()
             }
         }
 
-        auto game_duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
+        auto asteroid_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
+        asteroids_interval_ = std::max(asteroids_interval_ - level_, MIN_INTERVAL );
 
         // create a new asteroid every interval seconds / interval decreases as level rises;
-        if (game_duration.count() > std::max(asteroids_interval_ - level_, MIN_INTERVAL )){
+        if (asteroid_time.count() >= asteroids_interval_ ){
             createAstroid();
             asteroid_time_ = std::chrono::system_clock::now();
         }
@@ -199,10 +204,20 @@ void Game::update()
         auto message = std::make_shared<DrawableEntity>();
         DrawableText message_text;
         std::stringstream  text;
-        text  << "SCORE: " << score_ ;
+        text  << "SCORE: " << score_ << " LEVEL: " << level_;
         message_text.text = text.str();
         message_text.color = {255, 255, 255, 0};
-        message_text.rect = {0, 0, 320, 60};
+        message_text.rect = {0, 0, 380, 60};
+
+        message->addText(std::move(message_text));
+
+        // Create the asteroid timer entity
+        text.str("");
+        text.clear();
+
+        text << "NEXT ASTEROID IN: " << (asteroids_interval_ -asteroid_time.count());
+        message_text.text = text.str();
+        message_text.rect = {0, 40, 380, 60};
 
         message->addText(std::move(message_text));
         
@@ -213,7 +228,7 @@ void Game::update()
 
         text << "FPS: " << actual_fps_;
         message_text.text = text.str();
-        message_text.rect = {960, 0, 320, 60};
+        message_text.rect = {1160, 0, 120, 60};
 
         message->addText(std::move(message_text));
         
@@ -237,6 +252,8 @@ void Game::processInput(){
         return;
     }
 
+    std::shared_ptr<Missile> missile;
+
     if (state_ == GameState::Running){
         // a key is pressed
         if (e.type == SDL_KEYDOWN){
@@ -255,12 +272,9 @@ void Game::processInput(){
                 spaceship_->accelDown();
                 break;
             case SDLK_SPACE:
-                // Limit shooting speed
-                if (std::chrono::duration_cast<std::chrono::milliseconds>
-                    (std::chrono::system_clock::now() - shot_time_).count() > MIN_SHOOTING_SPEED_MS)
-                {
-                    missiles_.emplace_back(spaceship_->shoot());
-                    shot_time_ = std::chrono::system_clock::now();
+                spaceship_->shoot(missile);
+                if (missile){
+                    missiles_.emplace_back(missile);
                 }
                 break;
             default:
@@ -423,11 +437,14 @@ void Game::checkHits()
 // reset the game variables
 void Game::reset()
 {
+    spaceship_->stop();
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
+    missiles_.clear();
     asteroids_.clear();
-    createAstroid();
+    
     asteroid_time_ = std::chrono::system_clock::now();
     score_ = 0;
     level_ = 0;
     asteroids_interval_ = INITIAL_INTERVAL;
+    createAstroid();
 }

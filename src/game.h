@@ -13,15 +13,14 @@
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define MIN_SHOOTING_SPEED_MS 150
-#define INITIAL_INTERVAL 4  
+#define INITIAL_INTERVAL 5  
 #define MIN_INTERVAL 1
 
 
 
 namespace asteroids{
 
-    enum class GameState{Idle, Running, GameOver, End};
+    enum class GameState{Idle, Running, GameOver, Paused, End};
     
     class Game{
     public:
@@ -65,7 +64,7 @@ namespace asteroids{
         std::shared_ptr<std::mt19937> mt_;
         std::chrono::time_point<std::chrono::system_clock> asteroid_time_;
         std::chrono::time_point<std::chrono::system_clock> start_;
-        std::chrono::time_point<std::chrono::system_clock> shot_time_;
+        //std::chrono::time_point<std::chrono::system_clock> shot_time_;
         
     };
 }
