@@ -113,7 +113,7 @@ void Game::update()
         auto message = std::make_shared<DrawableEntity>();
         DrawableText message_text;
         std::stringstream  text;
-        text  << "Press Any key to start again";
+        text  << "Press the ENTER key to start again";
         message_text.text = text.str();
         message_text.color = {255, 255, 255, 0};
         message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
@@ -268,10 +268,20 @@ void Game::processInput(){
             }
         }
     }
-    else if (state_ == GameState::Idle || state_ == GameState::GameOver){
+    // Any key to start playing
+    else if (state_ == GameState::Idle){
+        // a key is pressed
+        if (e.type == SDL_KEYDOWN){
+            state_ = GameState::Running;
+        }
+    }
+
+    // Return to start again
+    else if (state_ == GameState::GameOver){
         // a key is pressed
         this->reset();
         if (e.type == SDL_KEYDOWN){
+            if (e.key.keysym.sym == SDLK_RETURN)
             state_ = GameState::Running;
         }
     }
