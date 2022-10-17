@@ -5,7 +5,9 @@ using namespace asteroids;
 
 void Asteroid::updatePose()
 {
+    // Calculate the new pose
     pose_.x += speed_.x;
+    // Trim it at the edges
     pose_.x = std::max(0, pose_.x);
     pose_.x = std::min(pose_.x, WINDOW_WIDTH - width_ /2);
 
@@ -13,6 +15,7 @@ void Asteroid::updatePose()
     if (pose_.x == (WINDOW_WIDTH - width_ / 2) || pose_.x == 0)
         speed_.x = -1 * speed_.x;
     
+    // repeat for y
     pose_.y += speed_.y;
     pose_.y = std ::max(0, pose_.y);
     pose_.y = std::min(pose_.y, WINDOW_HEIGHT - height_ / 2);

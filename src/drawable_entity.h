@@ -44,7 +44,7 @@ namespace asteroids
         void setHeight(int h) { height_ = h; }
         std::vector<DrawableRect> getRects() { return rects_; }
         std::vector<DrawableText> getTexts() { return texts_; }
-        void addRect(DrawableRect rect){ rects_.emplace_back(rect); }
+        void addRect(DrawableRect &&rect){ rects_.emplace_back(rect); }
         void addText(DrawableText &&text){ texts_.emplace_back(text); }
 
     protected:

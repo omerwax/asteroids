@@ -11,8 +11,10 @@ int main(int argc, char* argv[])
 {
     
  	Game game(60);
-    game.init();
-    game.run();
+    if (game.init()){
+        game.run();
+    }
+    
 
     return 0;
 }

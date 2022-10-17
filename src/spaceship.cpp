@@ -23,7 +23,7 @@ std::shared_ptr<Missile> Spaceship::shoot()
     missile->setHeight(20);
     missile->setPose(std::move(pose));
 
-    missile->addRect(rect);
+    missile->addRect(std::move(rect));
     missile->setSpeed(Speed(0, -5));
 
     return missile;

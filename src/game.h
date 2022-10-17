@@ -21,9 +21,8 @@
 
 namespace asteroids{
 
-    enum class GameState{Running, GameOver, Stopped};
+    enum class GameState{Idle, Running, GameOver, End};
     
-     
     class Game{
     public:
         Game(int fps) : fps_(fps), 
@@ -42,6 +41,7 @@ namespace asteroids{
         void createAstroid();
         bool checkCollisions();
         void checkHits();
+        void reset();
         
                 
         std::shared_ptr<Spaceship> spaceship_;

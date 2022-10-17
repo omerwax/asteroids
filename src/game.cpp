@@ -25,10 +25,10 @@ bool Game::init()
     spaceship_ = std::make_shared<Spaceship>();
     rect.rect = {30, 0, 30, 30};
     rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(rect);
+    spaceship_->addRect(std::move(rect));
     rect.rect = {0, 30, 90, 30};
     rect.color = {255, 255, 0, 0};
-    spaceship_->addRect(rect);
+    spaceship_->addRect(std::move(rect));
 
     // set initial pose
     spaceship_->setWidth(90);
@@ -38,6 +38,8 @@ bool Game::init()
 
     //create the first asteroid;
     createAstroid();
+
+    state_ = GameState::Idle;
 }
 
 void Game::render()
@@ -57,7 +59,7 @@ void Game::run()
     SDL_Event e;
 
     // The main game loop
-    while (state_ == GameState::Running){
+    while (state_ != GameState::End){
 
         // get the current time
         auto start = std::chrono::system_clock::now(); 
@@ -84,6 +86,51 @@ void Game::update()
        
     entities_.clear();
 
+    if (state_ == GameState::Idle)
+    {
+        auto message = std::make_shared<DrawableEntity>();
+        DrawableText message_text;
+        std::stringstream  text;
+        text  << "Asteroids!!! Press Any key to start";
+        message_text.text = text.str();
+        message_text.color = {255, 255, 255, 0};
+        message_text.rect = {WINDOW_WIDTH / 2 - WINDOW_WIDTH / 4 , 0, WINDOW_WIDTH / 2, 60};
+
+        message->addText(std::move(message_text));
+        entities_.emplace_back(message);
+        return;
+
+    }
+
+    if (state_ == GameState::GameOver)
+    {
+        auto message = std::make_shared<DrawableEntity>();
+        DrawableText message_text;
+        std::stringstream  text;
+        text  << "Press Any key to start again";
+        message_text.text = text.str();
+        message_text.color = {255, 255, 255, 0};
+        message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
+        message->addText(std::move(message_text));
+
+        text.str("");
+        text << "GAME OVER!!!";
+        message_text.text = text.str();
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 - 80, WINDOW_WIDTH / 4, 60};
+                
+        message->addText(std::move(message_text));
+
+        text.str("");
+        text << "SCORE: " << score_;
+        message_text.text = text.str();
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+                
+        message->addText(std::move(message_text));
+        entities_.emplace_back(message);
+        // set spaceship to initial pose
+        return;
+
+    }
     // update spaceship pose
     spaceship_->updatePose();
     entities_.emplace_back(spaceship_);
@@ -132,7 +179,7 @@ void Game::update()
 
     if (checkCollisions()){
         std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
-        state_ = GameState::Stopped;
+        state_ = GameState::GameOver;
     }
 
     checkHits();
@@ -161,8 +208,7 @@ void Game::update()
     
     
     entities_.emplace_back(message);
-    
-        
+            
 }
 
 
@@ -173,40 +219,50 @@ void Game::processInput(){
     
     // First check for quit event
     if (e.type == SDL_QUIT){
-        state_ = GameState::Stopped;
+        state_ = GameState::End;
         return;
     }
 
-    // a key is pressed
-    if (e.type == SDL_KEYDOWN){
-        switch (e.key.keysym.sym)
-        {
-        case SDLK_RIGHT:
-            spaceship_->accelRight();
-            break;
-        case SDLK_LEFT:
-            spaceship_->accelLeft();
-            break;
-        case SDLK_UP:
-            spaceship_->accelUp();
-            break;
-        case SDLK_DOWN:
-            spaceship_->accelDown();
-            break;
-        case SDLK_SPACE:
-            // Limit shooting speed
-            if (std::chrono::duration_cast<std::chrono::milliseconds>
-                (std::chrono::system_clock::now() - shot_time_).count() > MIN_SHOOTING_SPEED_MS)
+    if (state_ == GameState::Running){
+        // a key is pressed
+        if (e.type == SDL_KEYDOWN){
+            switch (e.key.keysym.sym)
             {
-                missiles_.emplace_back(spaceship_->shoot());
-                shot_time_ = std::chrono::system_clock::now();
+            case SDLK_RIGHT:
+                spaceship_->accelRight();
+                break;
+            case SDLK_LEFT:
+                spaceship_->accelLeft();
+                break;
+            case SDLK_UP:
+                spaceship_->accelUp();
+                break;
+            case SDLK_DOWN:
+                spaceship_->accelDown();
+                break;
+            case SDLK_SPACE:
+                // Limit shooting speed
+                if (std::chrono::duration_cast<std::chrono::milliseconds>
+                    (std::chrono::system_clock::now() - shot_time_).count() > MIN_SHOOTING_SPEED_MS)
+                {
+                    missiles_.emplace_back(spaceship_->shoot());
+                    shot_time_ = std::chrono::system_clock::now();
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            break;
         }
     }
-    
+    else if (state_ == GameState::Idle || state_ == GameState::GameOver){
+        // a key is pressed
+        if (e.type == SDL_KEYDOWN){
+            this->reset();
+            state_ = GameState::Running;
+        }
+    }
+
+
     return;
 
 }
@@ -218,20 +274,20 @@ void Game::createAstroid()
     rect.color = {0, 0, 255, 0};
     
     rect.rect = {20,0,10,5};
-    asteroid->addRect(rect);
+    asteroid->addRect(std::move(rect));
     rect.rect = {10,5,30,10};
-    asteroid->addRect(rect);
+    asteroid->addRect(std::move(rect));
     rect.rect = {0,15,50,20};
-    asteroid->addRect(rect);
+    asteroid->addRect(std::move(rect));
     rect.rect = {10,35,30,10};
-    asteroid->addRect(rect);
+    asteroid->addRect(std::move(rect));
     rect.rect = {20,45,10,5};
-    asteroid->addRect(rect);
+    asteroid->addRect(std::move(rect));
 
     asteroid->setHeight(50);
     asteroid->setWidth(50);
 
-    std::uniform_int_distribution<int> dist(0, WINDOW_WIDTH - asteroid->getWidth() / 2);
+    std::uniform_int_distribution<int> dist(asteroid->getWidth(), WINDOW_WIDTH - asteroid->getWidth());
            
     asteroid->setPose(Pose(dist(*mt_),0));
 
@@ -336,4 +392,15 @@ void Game::checkHits()
     
        
     return;
+}
+
+void Game::reset()
+{
+    spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
+    asteroids_.clear();
+    createAstroid();
+    asteroid_time_ = std::chrono::system_clock::now();
+    score_ = 0;
+    level_ = 0;
+    asteroids_interval_ = INITIAL_INTERVAL;
 }
