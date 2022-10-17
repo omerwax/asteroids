@@ -40,6 +40,8 @@ bool Game::init()
     createAstroid();
 
     state_ = GameState::Idle;
+
+    return true;
 }
 
 void Game::render()

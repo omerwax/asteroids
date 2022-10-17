@@ -11,10 +11,12 @@ int main(int argc, char* argv[])
 {
     
  	Game game(60);
-    if (game.init()){
-        game.run();
+    if (!game.init()){
+        std::cout << "Game init failed\nExiting" << std::endl;
+        return -1;
     }
-    
+
+    game.run();
 
     return 0;
 }
