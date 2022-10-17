@@ -17,10 +17,10 @@ namespace asteroids
     class Spaceship : public MovingEntity {
     public:
         Spaceship(); 
-        void accelRight(){ speed_.x = std::min(max_speed_, speed_.x + accel_); }
-        void accelLeft(){ speed_.x = std::max(-1 * max_speed_, speed_.x - accel_); }
-        void accelDown(){ speed_.y = std::min(max_speed_, speed_.y + accel_); }
-        void accelUp(){ speed_.y = std::max(-1 * max_speed_, speed_.y - accel_); }
+        void accelRight(){ speed_.x = std::min(speed_.x + accel_, max_speed_); }
+        void accelLeft(){ speed_.x = std::max(speed_.x - accel_,  - 1 * max_speed_); }
+        void accelDown(){ speed_.y = std::min(speed_.y+ accel_, max_speed_); }
+        void accelUp(){ speed_.y = std::max(speed_.y - accel_,  - 1 * max_speed_); }
         void stop(){ speed_ = Speed(0,0); }
         void updatePose();
         std::shared_ptr<Missile> shoot();

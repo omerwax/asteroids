@@ -81,11 +81,14 @@ void Game::run()
 
 }
 
+// Update function update the position of all the game entities, check collisions and missile hits
+// In addition it populates the entities_ vector with entities for rendering. It also 
 void Game::update()
 {
        
     entities_.clear();
 
+    //Create the enities for the game start screen
     if (state_ == GameState::Idle)
     {
         auto message = std::make_shared<DrawableEntity>();
@@ -102,6 +105,7 @@ void Game::update()
 
     }
 
+    // Create the enities for the gameover screen
     if (state_ == GameState::GameOver)
     {
         auto message = std::make_shared<DrawableEntity>();
@@ -121,7 +125,7 @@ void Game::update()
         message->addText(std::move(message_text));
 
         text.str("");
-        text << "SCORE: " << score_;
+        text << "SCORE: " << final_score_;
         message_text.text = text.str();
         message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
                 
@@ -131,87 +135,95 @@ void Game::update()
         return;
 
     }
-    // update spaceship pose
-    spaceship_->updatePose();
-    entities_.emplace_back(spaceship_);
+    else if (state_ == GameState::Running){
+        // update spaceship pose
+        spaceship_->updatePose();
+        entities_.emplace_back(spaceship_);
 
-    // update level according to score
-    if (score_ % 1000 == 0 && score_ != 0)
-        level_ ++;
+        // update level according to score
+        if (score_ % 1000 == 0 && score_ != 0)
+            level_ ++;
 
 
-    // Update all missile, delete ones that are out of scope(screen)
-    auto it = missiles_.begin();
-    while ( it != missiles_.end()){
-        (*it)->updatePose();
-        // check if missile is out of screen
-        if ((*it)->isAlive()){
-            entities_.emplace_back(*it);
-            it++;
+        // Update all missile, delete ones that are out of scope(screen)
+        auto it = missiles_.begin();
+        while ( it != missiles_.end()){
+            (*it)->updatePose();
+            // check if missile is out of screen
+            if ((*it)->isAlive()){
+                entities_.emplace_back(*it);
+                it++;
+            }
+            else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+                missiles_.erase(it);
+            }
         }
-        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
-            missiles_.erase(it);
+
+        auto game_duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
+
+        // create a new asteroid every interval seconds / interval decreases as level rises;
+        if (game_duration.count() > std::max(asteroids_interval_ - level_, MIN_INTERVAL )){
+            createAstroid();
+            asteroid_time_ = std::chrono::system_clock::now();
         }
-    }
-
-    auto game_duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
-
-    // create a new asteroid every interval seconds / interval decreases as level rises;
-    if (game_duration.count() > std::max(asteroids_interval_ - level_, MIN_INTERVAL )){
-        createAstroid();
-        asteroid_time_ = std::chrono::system_clock::now();
-    }
-        
-
-    // Update all Steroids, delete ones that are out of scope (Blasted)
-    auto it_s = asteroids_.begin();
-    while ( it_s != asteroids_.end()){
-        (*it_s)->updatePose();
-        // check if missile is out of screen
-        if ((*it_s)->isAlive()){
-            entities_.emplace_back(*it_s);
-            it_s++;
-        }
-        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
-            asteroids_.erase(it_s);
-        }
-    }
-
-    if (checkCollisions()){
-        std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
-        state_ = GameState::GameOver;
-    }
-
-    checkHits();
-
-    
-    auto message = std::make_shared<DrawableEntity>();
-    DrawableText message_text;
-    std::stringstream  text;
-    text  << "SCORE: " << score_ ;
-    message_text.text = text.str();
-    message_text.color = {255, 255, 255, 0};
-    message_text.rect = {0, 0, 320, 60};
-
-    message->addText(std::move(message_text));
-    
-    
-    
-    text.str("");
-    text.clear();
-
-    text << "FPS: " << actual_fps_;
-    message_text.text = text.str();
-    message_text.rect = {960, 0, 320, 60};
-
-    message->addText(std::move(message_text));
-    
-    
-    entities_.emplace_back(message);
             
+
+        // Update all Steroids, delete ones that are out of scope (Blasted)
+        auto it_s = asteroids_.begin();
+        while ( it_s != asteroids_.end()){
+            (*it_s)->updatePose();
+            // check if missile is out of screen
+            if ((*it_s)->isAlive()){
+                entities_.emplace_back(*it_s);
+                it_s++;
+            }
+            else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+                asteroids_.erase(it_s);
+            }
+        }
+
+        // Check if the spaceship collided with an asteroid
+        if (checkCollisions()){
+            std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
+            final_score_ = score_;
+            state_ = GameState::GameOver;
+        }
+
+        // Check for missile hits
+        checkHits();
+
+        
+        // Create the score entity
+        auto message = std::make_shared<DrawableEntity>();
+        DrawableText message_text;
+        std::stringstream  text;
+        text  << "SCORE: " << score_ ;
+        message_text.text = text.str();
+        message_text.color = {255, 255, 255, 0};
+        message_text.rect = {0, 0, 320, 60};
+
+        message->addText(std::move(message_text));
+        
+        
+        // Create the FPS entity
+        text.str("");
+        text.clear();
+
+        text << "FPS: " << actual_fps_;
+        message_text.text = text.str();
+        message_text.rect = {960, 0, 320, 60};
+
+        message->addText(std::move(message_text));
+        
+        
+        entities_.emplace_back(message);
+
+    }
+             
 }
 
 
+// Processing user input according to game state
 void Game::processInput(){
     //Handle events on queue
     SDL_Event e;
@@ -256,8 +268,8 @@ void Game::processInput(){
     }
     else if (state_ == GameState::Idle || state_ == GameState::GameOver){
         // a key is pressed
+        this->reset();
         if (e.type == SDL_KEYDOWN){
-            this->reset();
             state_ = GameState::Running;
         }
     }
@@ -267,6 +279,7 @@ void Game::processInput(){
 
 }
 
+// Cretae a new astroid on a random place on the top row of the screen, with a random speed
 void Game::createAstroid()
 {
     auto asteroid = std::make_shared<Asteroid>();
@@ -339,6 +352,7 @@ bool Game::checkCollisions(){
     return false;
 }
 
+// Check for missile and asteroid hits
 void Game::checkHits()
 {
     
@@ -394,6 +408,7 @@ void Game::checkHits()
     return;
 }
 
+// reset the game variables
 void Game::reset()
 {
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));

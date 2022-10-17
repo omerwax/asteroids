@@ -54,6 +54,7 @@ namespace asteroids{
         int asteroids_interval_;
         int level_;
         int score_;
+        int final_score_;
         const int width_ ;
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
