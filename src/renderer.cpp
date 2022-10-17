@@ -9,10 +9,6 @@
 
 using namespace asteroids;
 
-Renderer::Renderer(int window_width, int window_height) : 
-    width_(window_width), height_(window_height), 
-    initiated_(false){}
-
 bool Renderer::init()
 {
     // SDL INIT
@@ -22,7 +18,7 @@ bool Renderer::init()
 	}
 
     // Create a SDL WINDOW
-    window_ = SDL_CreateWindow("Space Invaders!!!", 100, 100, width_, height_, SDL_WINDOW_SHOWN);
+    window_ = SDL_CreateWindow("SDL2 - Asteroids", 100, 100, width_, height_, SDL_WINDOW_SHOWN);
     if (window_ == nullptr){
         std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -62,45 +58,15 @@ Renderer::~Renderer()
     
 }
 
-void Renderer::logSDLError(std::ostream &os, const std::string &msg){
-	os << msg << " error: " << SDL_GetError() << std::endl;
-}
-
-SDL_Texture* Renderer::loadTexture(const std::string &file){
-	//Initialize to nullptr to avoid dangling pointer issues
-	SDL_Texture *texture = nullptr;
-	//Load the image
-	SDL_Surface *loadedImage = SDL_LoadBMP(file.c_str());
-	//If the loading went ok, convert to texture and return the texture
-	if (loadedImage != nullptr){
-		texture = SDL_CreateTextureFromSurface(renderer_, loadedImage);
-		SDL_FreeSurface(loadedImage);
-		//Make sure converting went ok too
-		if (texture == nullptr){
-			logSDLError(std::cout, "CreateTextureFromSurface");
-		}
-	}
-	else {
-		logSDLError(std::cout, "LoadBMP");
-	}
-	return texture;
-}
-
-void Renderer::renderTexture(SDL_Texture *tex, int x, int y){
-	//Setup the destination rectangle to be at the position we want
-	SDL_Rect dst;
-	dst.x = x;
-	dst.y = y;
-	//Query the texture to get its width and height to use
-	SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-	SDL_RenderCopy(renderer_, tex, NULL, &dst);
-}
-
-bool Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
+void Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
 {
+    
+    // First clear 
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
 
+    
+    // Reneder all drawable entities
     for (auto &entity:entities){
         Pose pose = entity->getPose();
         // Render the rects
@@ -112,30 +78,20 @@ bool Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
             rect.rect.x -= pose.x;
             rect.rect.y -= pose.y;
         }
+        // Render the texts
         for (auto &text:entity->getTexts()){
             auto texture = createTextureFromText(text.text, text.color);
             SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
                     
         }
     }
-
   
     //Update the screen
     SDL_RenderPresent(renderer_);
 
-    return true;
+    return ;
 
 }
-
-
-void Renderer::getImageSize(std::string image_path, int &w, int &h)
-{
-    SDL_Texture *image = loadTexture(image_path);
-    SDL_QueryTexture(image, NULL, NULL, &w, &h);
-
-}
-
-
 
 SDL_Texture* Renderer::createTextureFromText(std::string text, SDL_Color)
 {

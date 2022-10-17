@@ -2,7 +2,6 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include <random>
 #include <sstream>
 
 #include "game.h"
@@ -12,12 +11,17 @@ using namespace asteroids;
 
 bool Game::init()
 {
+    
+    // Initialize the renderer
     if (!renderer_.init())
         return false;
         
-    DrawableRect rect;
+    // Initialize the random engine
+    mt_ = std::make_shared<std::mt19937>(std::chrono::system_clock::now().time_since_epoch().count());
     
-    // Create a spaceship shape by a group of rectangles
+      
+    // Define spaceship shape by a group of rectangles
+    DrawableRect rect;
     spaceship_ = std::make_shared<Spaceship>();
     rect.rect = {30, 0, 30, 30};
     rect.color = {255, 0, 0, 0};
@@ -26,12 +30,14 @@ bool Game::init()
     rect.color = {255, 255, 0, 0};
     spaceship_->addRect(rect);
 
+    // set initial pose
     spaceship_->setWidth(90);
     spaceship_->setHeight(60);
 
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
 
-    entities_.emplace_back(spaceship_);
+    //create the first asteroid;
+    createAstroid();
 }
 
 void Game::render()
@@ -44,6 +50,8 @@ void Game::run()
     int frame = 0;
 
     start_ = std::chrono::system_clock::now();
+    asteroid_time_ = start_; shot_time_ = start_;
+
     
     //Event handler
     SDL_Event e;
@@ -62,7 +70,8 @@ void Game::run()
         
         auto frame_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
 
-        actual_fps_ = 1000.0 / frame_duration.count();
+        if (frame % fps_ == 0)
+            actual_fps_ = 1000.0 / frame_duration.count();
         ++frame;
         if (actual_fps_ < fps_ - 5)
             std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps_ << std::endl;
@@ -79,6 +88,10 @@ void Game::update()
     spaceship_->updatePose();
     entities_.emplace_back(spaceship_);
 
+    // update level according to score
+    if (score_ % 1000 == 0 && score_ != 0)
+        level_ ++;
+
 
     // Update all missile, delete ones that are out of scope(screen)
     auto it = missiles_.begin();
@@ -94,11 +107,14 @@ void Game::update()
         }
     }
 
-    auto game_duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_);
+    auto game_duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
 
-    // create a new asteroid every 5 seconds;
-    if (game_duration.count()  % 5000 <= MS_PER_FRAME_)
+    // create a new asteroid every interval seconds / interval decreases as level rises;
+    if (game_duration.count() > std::max(asteroids_interval_ - level_, MIN_INTERVAL )){
         createAstroid();
+        asteroid_time_ = std::chrono::system_clock::now();
+    }
+        
 
     // Update all Steroids, delete ones that are out of scope (Blasted)
     auto it_s = asteroids_.begin();
@@ -125,12 +141,14 @@ void Game::update()
     auto message = std::make_shared<DrawableEntity>();
     DrawableText message_text;
     std::stringstream  text;
-    text  << "SCORE: " << score_ ;//<< ", FPS: " << actual_fps_;
+    text  << "SCORE: " << score_ ;
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
     message_text.rect = {0, 0, 320, 60};
 
     message->addText(std::move(message_text));
+    
+    
     
     text.str("");
     text.clear();
@@ -140,7 +158,8 @@ void Game::update()
     message_text.rect = {960, 0, 320, 60};
 
     message->addText(std::move(message_text));
-
+    
+    
     entities_.emplace_back(message);
     
         
@@ -197,6 +216,7 @@ void Game::createAstroid()
     auto asteroid = std::make_shared<Asteroid>();
     DrawableRect rect;
     rect.color = {0, 0, 255, 0};
+    
     rect.rect = {20,0,10,5};
     asteroid->addRect(rect);
     rect.rect = {10,5,30,10};
@@ -206,21 +226,16 @@ void Game::createAstroid()
     rect.rect = {10,35,30,10};
     asteroid->addRect(rect);
     rect.rect = {20,45,10,5};
-
     asteroid->addRect(rect);
+
     asteroid->setHeight(50);
     asteroid->setWidth(50);
 
-    std::mt19937 mt(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()- start_).count());
-    std::uniform_int_distribution<int> dist(0, std::max(WINDOW_HEIGHT, WINDOW_WIDTH));
-    Pose pose;
-    
-    pose.x = dist(mt)% WINDOW_WIDTH; 
-    pose.y = dist(mt) % WINDOW_HEIGHT;
+    std::uniform_int_distribution<int> dist(0, WINDOW_WIDTH - asteroid->getWidth() / 2);
+           
+    asteroid->setPose(Pose(dist(*mt_),0));
 
-    asteroid->setPose(Pose(dist(mt)% WINDOW_WIDTH, asteroid->getHeight() / 2));
-
-    asteroid->setSpeed(Speed(dist(mt) % max_speed_, dist(mt)% max_speed_));
+    asteroid->setSpeed(Speed(dist(*mt_) % max_speed_, 2 + level_));
     
     asteroids_.emplace_back(asteroid);
 
@@ -230,7 +245,6 @@ void Game::createAstroid()
 bool Game::checkCollisions(){
     
     // Check if there are any asteroids
-
     if (asteroids_.size() == 0){
         return false;
     }
@@ -276,10 +290,7 @@ void Game::checkHits()
     if (missiles_.size() == 0 || asteroids_.size() == 0){
         return ;
     }
-    
-    
-    
-        
+     
     // Iterate through asteroids
     for (auto &missile:missiles_){
         
@@ -314,7 +325,9 @@ void Game::checkHits()
                         asteroid->explode();
                         missile->explode();
                         std::cout << "Missile Hit" << std::endl;  
-                        score_ += 100;                
+                        score_ += 100;
+                        // stop testing further rects as asteroid has already exploded
+                        break;                
                     }
                 }
             }

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <chrono>
+#include <random>
 
 #include "renderer.h"
 #include "drawable_entity.h"
@@ -12,7 +13,10 @@
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define MIN_SHOOTING_SPEED_MS 200
+#define MIN_SHOOTING_SPEED_MS 150
+#define INITIAL_INTERVAL 4  
+#define MIN_INTERVAL 1
+
 
 
 namespace asteroids{
@@ -22,8 +26,11 @@ namespace asteroids{
      
     class Game{
     public:
-        Game(int fps) : fps_(fps), width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
-                        state_(GameState::Running), score_(0){};
+        Game(int fps) : fps_(fps), 
+                        width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
+                        state_(GameState::Running), score_(0), 
+                        asteroids_interval_(INITIAL_INTERVAL),
+                        level_(0){};
         bool init();
         void run();
         
@@ -44,6 +51,8 @@ namespace asteroids{
 
         int fps_;
         int actual_fps_;
+        int asteroids_interval_;
+        int level_;
         int score_;
         const int width_ ;
         const int height_;
@@ -52,6 +61,8 @@ namespace asteroids{
         Renderer renderer_{width_, height_};
         GameState state_;
 
+        std::shared_ptr<std::mt19937> mt_;
+        std::chrono::time_point<std::chrono::system_clock> asteroid_time_;
         std::chrono::time_point<std::chrono::system_clock> start_;
         std::chrono::time_point<std::chrono::system_clock> shot_time_;
         

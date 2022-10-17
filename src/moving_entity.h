@@ -14,7 +14,7 @@ namespace asteroids
     class MovingEntity : public DrawableEntity {
     public:
         MovingEntity() : speed_(0, 0){}
-        void setSpeed(Speed &&s) { speed_.x = s.x % max_speed_; speed_.y = s.y % max_speed_ ;}
+        void setSpeed(Speed &&s);
         int getXSpeed(){ return speed_.x; }
         int getYSpeed(){ return speed_.y; }
         void updatePose();

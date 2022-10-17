@@ -10,8 +10,7 @@ using namespace asteroids;
 int main(int argc, char* argv[])
 {
     
-       
-	Game game(60);
+ 	Game game(60);
     game.init();
     game.run();
 
