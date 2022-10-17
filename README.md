@@ -51,21 +51,22 @@ make
 ## Classes structure
 - Game  - The Main class, responsible for managing the game, and running the main game loop;
 - Renderer - A wraper class for the using SDL2 in a simpler way, renderer takes a vector of Drawable Objects and render them to the screen
-- DrawableEntity - A class of renderables objects, with shape and text. The sahpe is defined by a collection of rectangles.
+- DrawableEntity - A class of renderables objects, with shape and text. The shpes are defined by a collection of rectangles.
 - MovingEntity - Inherites from the DrawableEntity class, adds movment capabilities
 - Spacship - Inherits from the MovingEntity class, add movement control and shooting 
 - Missile - Inherits from the MovingEntity class
 - Asteroid - Inherited from the MovingEntity class
 
 ## Game Behavior
-- The game starts at the start screen, promting the player to start playing the game
+- The game starts at the start screen, prompting the player to start playing the game
 - Once the game starts, there is a single spaceship and a single asteroid on the screen
 - Asteroids are added to the screen every time interval
 - The purpose of the game is to hit the asteroid with missiles, launched by hitting space
-- If an asteroid is hitting the spaceship the game is over
+- If an asteroid hitts the spaceship, the game is over
 - Every asteroid hit gives a 100 points
-- On reaching a 1000 points the game gets harder, i.e. asteroid are faster and are generated more freqently
-- When the game is over, it can be restarted easily by pressing any key and starting all over again.
+- Every 1000 points, the level is increased and the game gets harder, i.e. asteroid move faster and are generated more frequently
+- If the player is too tired or excited, the game can be paused by pressing ESC and then another ESC for resuming the game
+- When the game is over, it can be restarted easily by pressing enter and starting all over again.
 
 # Project Rubric
 ## Readme
