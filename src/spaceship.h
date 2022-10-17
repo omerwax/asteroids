@@ -22,7 +22,7 @@ namespace asteroids
         void accelDown(){ speed_.y = std::min(speed_.y+ accel_, max_speed_); }
         void accelUp(){ speed_.y = std::max(speed_.y - accel_,  - 1 * max_speed_); }
         void stop(){ speed_ = Speed(0,0); }
-        void updatePose();
+        void updatePose() override;
         std::shared_ptr<Missile> shoot();
         
             

@@ -9,15 +9,14 @@
 
 namespace asteroids
 {
-    
-    
+        
     class MovingEntity : public DrawableEntity {
     public:
         MovingEntity() : speed_(0, 0){}
         void setSpeed(Speed &&s);
         int getXSpeed(){ return speed_.x; }
         int getYSpeed(){ return speed_.y; }
-        void updatePose();
+        virtual void updatePose() = 0;
 
     protected:
         int max_speed_;
