@@ -4,8 +4,8 @@ This repository contains a simplified Asteroids game.
 it is implemented in C++ and the SDL2 library.
 This is the final project for the Udacity C++ nanodegree program
 
-- [SDL2][]
-- [SDL2_ttf][]
+- [SDL2](https://www.libsdl.org/)
+- [SDL2_ttf](https://www.libsdl.org/)
 
 ## External Dependecies
 
