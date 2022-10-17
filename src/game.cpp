@@ -259,6 +259,9 @@ void Game::processInput(){
         if (e.type == SDL_KEYDOWN){
             switch (e.key.keysym.sym)
             {
+            case SDLK_ESCAPE:
+                state_ = GameState::Paused;
+                break;
             case SDLK_RIGHT:
                 spaceship_->accelRight();
                 break;
@@ -296,6 +299,15 @@ void Game::processInput(){
         this->reset();
         if (e.type == SDL_KEYDOWN){
             if (e.key.keysym.sym == SDLK_RETURN)
+            state_ = GameState::Running;
+        }
+    }
+
+    // Return to start again
+    else if (state_ == GameState::Paused){
+        // a key is pressed
+        if (e.type == SDL_KEYDOWN){
+            if (e.key.keysym.sym == SDLK_ESCAPE)
             state_ = GameState::Running;
         }
     }
