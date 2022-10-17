@@ -2,11 +2,12 @@
 #include <random>
 #include <ctime>
 #include <memory>
+#include <experimental/filesystem>
 
 #include "renderer.h"
 
 
-
+namespace fs = std::experimental::filesystem;
 using namespace asteroids;
 
 bool Renderer::init()
@@ -35,10 +36,10 @@ bool Renderer::init()
     }
 
     TTF_Init();
+    auto font_path = fs::current_path().parent_path().string() + "/fonts/FreeSans.ttf";
+    font_ = TTF_OpenFont(font_path.c_str(),  48 );
 
-    font_ = TTF_OpenFont("/home/omerwax/courses/Udacity/cpp-nanodegree/Capstone-project/fonts/FreeSans.ttf", 24);
-
-    if (font_ == NULL)
+     if (font_ == NULL)
         return false;
     
     this->initiated_ = true;
