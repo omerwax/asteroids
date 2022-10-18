@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <memory>
 #include <SDL2/SDL.h>
 
 namespace asteroids
@@ -46,7 +47,7 @@ namespace asteroids
         std::vector<DrawableText> getTexts() { return texts_; }
         void addRect(DrawableRect &&rect){ rects_.emplace_back(rect); }
         void addText(DrawableText &&text){ texts_.emplace_back(text); }
-        bool intersects(DrawableEntity &entity);
+        bool intersects(std::shared_ptr< DrawableEntity> entity);
 
     protected:
         int width_, height_, window_width_, window_height_;

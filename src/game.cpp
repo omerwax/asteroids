@@ -391,7 +391,7 @@ bool Game::checkCollisions(){
     // Iterate through asteroids
     for (auto &asteroid:asteroids_){
         // Check intersection with the spacship
-        if (spaceship_->intersects(*asteroid)){
+        if (spaceship_->intersects(asteroid)){
             return true;
         }
     }
@@ -415,7 +415,7 @@ void Game::checkHits()
             if (asteroid->isAlive() == false)
                 continue;
             // Check intersection between missile and asteroid
-            if (missile->intersects(*asteroid)){
+            if (missile->intersects(asteroid)){
                 asteroid->explode();
                 missile->explode();
                 std::cout << "Missile Hit" << std::endl;
@@ -427,9 +427,6 @@ void Game::checkHits()
     return;
 }
     
-    
-       
-
 // reset the game variables
 void Game::reset()
 {
