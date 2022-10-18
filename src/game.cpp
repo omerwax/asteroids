@@ -163,7 +163,7 @@ void Game::update()
         }
 
         auto asteroid_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
-        asteroids_interval_ = std::max(asteroids_interval_ - level_, MIN_INTERVAL );
+        asteroids_interval_ = std::max(INITIAL_INTERVAL - level_, MIN_INTERVAL );
 
         // create a new asteroid every interval seconds / interval decreases as level rises;
         if (asteroid_time.count() >= asteroids_interval_ ){
@@ -212,7 +212,7 @@ void Game::update()
         text.str("");
         text.clear();
 
-        text << "NEXT ASTEROID IN: " << (asteroids_interval_ -asteroid_time.count());
+        text << "NEXT ASTEROID IN: " << (asteroids_interval_ - asteroid_time.count());
         message_text.text = text.str();
         message_text.rect = {0, 40, 380, 60};
 
