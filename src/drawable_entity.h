@@ -46,6 +46,7 @@ namespace asteroids
         std::vector<DrawableText> getTexts() { return texts_; }
         void addRect(DrawableRect &&rect){ rects_.emplace_back(rect); }
         void addText(DrawableText &&text){ texts_.emplace_back(text); }
+        bool intersects(DrawableEntity &entity);
 
     protected:
         int width_, height_, window_width_, window_height_;

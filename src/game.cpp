@@ -201,7 +201,7 @@ void Game::update()
         auto message = std::make_shared<DrawableEntity>();
         DrawableText message_text;
         std::stringstream  text;
-        text  << "SCORE: " << score_ << " LEVEL: " << level_;
+        text  << "SCORE: " << score_ << " LEVEL: " << level_ + 1;
         message_text.text = text.str();
         message_text.color = {255, 255, 255, 0};
         message_text.rect = {0, 0, 380, 60};
@@ -355,37 +355,15 @@ bool Game::checkCollisions(){
         return false;
     }
     
-    // Get the spaceship rectangles
-    auto sp_rects = spaceship_->getRects();
-    
+     
     // Iterate through asteroids
     for (auto &asteroid:asteroids_){
-        // get the Asteroid rects
-        auto as_rects = asteroid->getRects();
-        // iterate through Asterois rects
-        for (auto &as_rect:as_rects){
-            
-            SDL_Rect rect1;
-            rect1 = as_rect.rect;
-            rect1.x += asteroid->getPose().x;
-            rect1.y += asteroid->getPose().y;
-
-            // Iterate through the spaceship rects & chack collisions with each asteroid rects
-            for (auto & sp_rect:sp_rects){
-                
-                SDL_Rect rect2;
-                rect2 = sp_rect.rect;
-                rect2.x += spaceship_->getPose().x;
-                rect2.y += spaceship_->getPose().y;
-                
-                // Check for collision
-                if (SDL_HasIntersection(&(rect1),&(rect2)))
-                    return true;
-
-            }
+        // Check intersection with the spacship
+        if (spaceship_->intersects(*asteroid)){
+            return true;
         }
     }
-
+    
     return false;
 }
 
@@ -398,52 +376,27 @@ void Game::checkHits()
         return ;
     }
      
-    // Iterate through asteroids
+    // Iterate through missiles and asteroids 
     for (auto &missile:missiles_){
-        
-        // get the Asteroid rects
-        auto mi_rects = missile->getRects();
-        // iterate through missile rects
-        for (auto &mi_rect:mi_rects){
-            
-            SDL_Rect rect1;
-            rect1 = mi_rect.rect;
-            rect1.x += missile->getPose().x;
-            rect1.y += missile->getPose().y;
-
-            for (auto &asteroid:asteroids_){
-
-                // Make sure Asteroid was not already hit;
-                if (asteroid->isAlive() == false)
-                    continue;
-                
-                auto as_rects = asteroid->getRects();
-
-                // Iterate through asteroid rects & check collisions with each asteroid rects
-                for (auto & as_rect:as_rects){
-                
-                    SDL_Rect rect2;
-                    rect2 = as_rect.rect;
-                    rect2.x += asteroid->getPose().x;
-                    rect2.y += asteroid->getPose().y;
-                    
-                    // Check for collision
-                    if (SDL_HasIntersection(&(rect1),&(rect2))){
-                        asteroid->explode();
-                        missile->explode();
-                        std::cout << "Missile Hit" << std::endl;  
-                        score_ += 100;
-                        // stop testing further rects as asteroid has already exploded
-                        break;                
-                    }
-                }
+        for (auto &asteroid:asteroids_){
+            // Make sure Asteroid was not already hit;
+            if (asteroid->isAlive() == false)
+                continue;
+            // Check intersection between missile and asteroid
+            if (missile->intersects(*asteroid)){
+                asteroid->explode();
+                missile->explode();
+                std::cout << "Missile Hit" << std::endl;
+                score_ += 100;
             }
         }
     }
-    
-       
+  
     return;
 }
+    
+    
+       
 
 // reset the game variables
 void Game::reset()
