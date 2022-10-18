@@ -43,6 +43,10 @@ namespace asteroids{
         void reset();
         void pause();
         void resume();
+        void updateGameOver();
+        void updateGameIdle();
+        void updateGameRunning();
+        void createTexts(const int &countdown);
         
                 
         std::shared_ptr<Spaceship> spaceship_;

@@ -88,155 +88,187 @@ void Game::run()
 void Game::update()
 {
        
-    if (state_ == GameState::Paused){ return; }
-    
-    
-    entities_.clear();
-
-    //Create the enities for the game start screen
-    if (state_ == GameState::Idle)
+    switch (state_)
     {
-        auto message = std::make_shared<DrawableEntity>();
-        DrawableText message_text;
-        std::stringstream  text;
-        text  << "Asteroids!!! Press Any key to start";
-        message_text.text = text.str();
-        message_text.color = {255, 255, 255, 0};
-        message_text.rect = {WINDOW_WIDTH / 2 - WINDOW_WIDTH / 4 , 0, WINDOW_WIDTH / 2, 60};
-
-        message->addText(std::move(message_text));
-        entities_.emplace_back(message);
-        return;
-
+    case GameState::Paused:
+        break;
+    case GameState::Running:
+        updateGameRunning();
+        break;
+    case GameState::GameOver:
+        updateGameOver();
+        break;
+    case GameState::Idle:
+        updateGameIdle();
+        break;
+    default:
+        break;
     }
-
-    // Create the enities for the gameover screen
-    if (state_ == GameState::GameOver)
-    {
-        auto message = std::make_shared<DrawableEntity>();
-        DrawableText message_text;
-        std::stringstream  text;
-        text  << "Press the ENTER key to start again";
-        message_text.text = text.str();
-        message_text.color = {255, 255, 255, 0};
-        message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
-        message->addText(std::move(message_text));
-
-        text.str("");
-        text << "GAME OVER!!!";
-        message_text.text = text.str();
-        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 - 80, WINDOW_WIDTH / 4, 60};
-                
-        message->addText(std::move(message_text));
-
-        text.str("");
-        text << "SCORE: " << final_score_;
-        message_text.text = text.str();
-        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
-                
-        message->addText(std::move(message_text));
-        entities_.emplace_back(message);
-        // set spaceship to initial pose
-        return;
-
-    }
-    if (state_ == GameState::Running){
-        // update spaceship pose
-        spaceship_->updatePose();
-        entities_.emplace_back(spaceship_);
-
-        // update level according to score
-        level_  = score_ / 1000;;
-
-        // Update all missile, delete ones that are out of scope(screen)
-        auto it = missiles_.begin();
-        while ( it != missiles_.end()){
-            (*it)->updatePose();
-            // check if missile is out of screen
-            if ((*it)->isAlive()){
-                entities_.emplace_back(*it);
-                it++;
-            }
-            else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
-                missiles_.erase(it);
-            }
-        }
-
-        auto asteroid_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
-        asteroids_interval_ = std::max(INITIAL_INTERVAL - level_, MIN_INTERVAL );
-
-        // create a new asteroid every interval seconds / interval decreases as level rises;
-        if (asteroid_time.count() >= asteroids_interval_ ){
-            createAstroid();
-            asteroid_time_ = std::chrono::system_clock::now();
-        }
-            
-
-        // Update all Steroids, delete ones that are out of scope (Blasted)
-        auto it_s = asteroids_.begin();
-        while ( it_s != asteroids_.end()){
-            (*it_s)->updatePose();
-            // check if missile is out of screen
-            if ((*it_s)->isAlive()){
-                entities_.emplace_back(*it_s);
-                it_s++;
-            }
-            else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
-                asteroids_.erase(it_s);
-            }
-        }
-
-        // Check if the spaceship collided with an asteroid
-        if (checkCollisions()){
-            std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
-            final_score_ = score_;
-            state_ = GameState::GameOver;
-        }
-
-        // Check for missile hits
-        checkHits();
-
-        
-        // Create the score entity
-        auto message = std::make_shared<DrawableEntity>();
-        DrawableText message_text;
-        std::stringstream  text;
-        text  << "SCORE: " << score_ << " LEVEL: " << level_ + 1;
-        message_text.text = text.str();
-        message_text.color = {255, 255, 255, 0};
-        message_text.rect = {0, 0, 380, 60};
-
-        message->addText(std::move(message_text));
-
-        // Create the asteroid timer entity
-        text.str("");
-        text.clear();
-
-        text << "NEXT ASTEROID IN: " << (asteroids_interval_ - asteroid_time.count());
-        message_text.text = text.str();
-        message_text.rect = {0, 40, 380, 60};
-
-        message->addText(std::move(message_text));
-        
-        
-        // Create the FPS entity
-        text.str("");
-        text.clear();
-
-        text << "FPS: " << actual_fps_;
-        message_text.text = text.str();
-        message_text.rect = {1160, 0, 120, 60};
-
-        message->addText(std::move(message_text));
-        
-        
-        entities_.emplace_back(message);
-
-    }
+    
+    return;   
              
 }
 
+void Game::updateGameRunning()
+{
+    
+    // Clear the enitites vector;
+    entities_.clear();
+    
+    // update spaceship pose
+    spaceship_->updatePose();
+    entities_.emplace_back(spaceship_);
 
+    // update level according to score
+    level_  = score_ / 1000;;
+
+    // Update all missile, delete ones that are out of scope(screen)
+    auto it = missiles_.begin();
+    while ( it != missiles_.end()){
+        (*it)->updatePose();
+        // check if missile is out of screen
+        if ((*it)->isAlive()){
+            entities_.emplace_back(*it);
+            it++;
+        }
+        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+            missiles_.erase(it);
+        }
+    }
+
+    // Calculate the time since the last asteroid
+    auto asteroid_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - asteroid_time_);
+    // Update the interval according to the game level
+    asteroids_interval_ = std::max(INITIAL_INTERVAL - level_, MIN_INTERVAL );
+
+    // create a new asteroid every interval seconds / interval decreases as level rises;
+    if (asteroid_time.count() >= asteroids_interval_ ){
+        createAstroid();
+        asteroid_time_ = std::chrono::system_clock::now();
+    }
+        
+
+    // Update all Steroids, delete ones that are out of scope (Blasted)
+    auto it_s = asteroids_.begin();
+    while ( it_s != asteroids_.end()){
+        (*it_s)->updatePose();
+        // check if missile is out of screen
+        if ((*it_s)->isAlive()){
+            entities_.emplace_back(*it_s);
+            it_s++;
+        }
+        else{// remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
+            asteroids_.erase(it_s);
+        }
+    }
+
+    // Check if the spaceship collided with an asteroid
+    if (checkCollisions()){
+        std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
+        final_score_ = score_;
+        state_ = GameState::GameOver;
+    }
+
+    // Check for missile hits
+    checkHits();
+    
+    // Create the game texts;
+    createTexts((asteroids_interval_ - asteroid_time.count()));
+
+}
+
+void Game::createTexts(const int &countdown)
+{
+    // Create the score entity
+    auto message = std::make_shared<DrawableEntity>();
+    DrawableText message_text;
+    std::stringstream  text;
+    text  << "SCORE: " << score_ << " LEVEL: " << level_ + 1;
+    message_text.text = text.str();
+    message_text.color = {255, 255, 255, 0};
+    message_text.rect = {0, 0, 380, 60};
+
+    message->addText(std::move(message_text));
+
+    // Create the asteroid timer entity
+    text.str("");
+    text.clear();
+
+    text << "NEXT ASTEROID IN: " << countdown;//
+    message_text.text = text.str();
+    message_text.rect = {0, 40, 380, 60};
+
+    message->addText(std::move(message_text));
+    
+    
+    // Create the FPS entity
+    text.str("");
+    text.clear();
+
+    text << "FPS: " << actual_fps_;
+    message_text.text = text.str();
+    message_text.rect = {1160, 0, 120, 60};
+
+    message->addText(std::move(message_text));
+    
+    
+    // Add the message the the entities vector;
+    entities_.emplace_back(message);
+
+}
+
+void Game::updateGameOver()
+{
+    
+    // Clear the enitites vector;
+    entities_.clear();
+
+    auto message = std::make_shared<DrawableEntity>();
+    DrawableText message_text;
+    std::stringstream  text;
+    text  << "Press the ENTER key to start again";
+    message_text.text = text.str();
+    message_text.color = {255, 255, 255, 0};
+    message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
+    message->addText(std::move(message_text));
+
+    text.str("");
+    text << "GAME OVER!!!";
+    message_text.text = text.str();
+    message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 - 80, WINDOW_WIDTH / 4, 60};
+            
+    message->addText(std::move(message_text));
+
+    text.str("");
+    text << "SCORE: " << final_score_;
+    message_text.text = text.str();
+    message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+            
+    message->addText(std::move(message_text));
+    entities_.emplace_back(message);
+    
+    return;
+}
+
+void Game::updateGameIdle()
+{
+    
+    // Clear the enitites vector;
+    entities_.clear();
+
+    auto message = std::make_shared<DrawableEntity>();
+    DrawableText message_text;
+    std::stringstream  text;
+    text  << "Asteroids!!! Press Any key to start";
+    message_text.text = text.str();
+    message_text.color = {255, 255, 255, 0};
+    message_text.rect = {WINDOW_WIDTH / 2 - WINDOW_WIDTH / 4 , 0, WINDOW_WIDTH / 2, 60};
+
+    message->addText(std::move(message_text));
+    entities_.emplace_back(message);
+    return;
+
+}
 // Processing user input according to game state
 void Game::processInput(){
     //Handle events on queue
