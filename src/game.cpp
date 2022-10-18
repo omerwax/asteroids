@@ -56,10 +56,6 @@ void Game::run()
     start_ = std::chrono::system_clock::now();
     asteroid_time_ = start_; 
 
-    
-    //Event handler
-    SDL_Event e;
-
     // The main game loop
     while (state_ != GameState::End){
 
