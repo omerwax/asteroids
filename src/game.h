@@ -41,6 +41,8 @@ namespace asteroids{
         bool checkCollisions();
         void checkHits();
         void reset();
+        void pause();
+        void resume();
         
                 
         std::shared_ptr<Spaceship> spaceship_;
@@ -63,9 +65,9 @@ namespace asteroids{
 
         std::shared_ptr<std::mt19937> mt_;
         std::chrono::time_point<std::chrono::system_clock> asteroid_time_;
+        std::chrono::milliseconds asteroid_delta_;
         std::chrono::time_point<std::chrono::system_clock> start_;
-        //std::chrono::time_point<std::chrono::system_clock> shot_time_;
-        
+                
     };
 }
 

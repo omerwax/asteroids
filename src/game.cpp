@@ -88,10 +88,7 @@ void Game::run()
 void Game::update()
 {
        
-    if (state_ == GameState::Paused)
-    {
-        return;
-    }
+    if (state_ == GameState::Paused){ return; }
     
     
     entities_.clear();
@@ -260,6 +257,7 @@ void Game::processInput(){
             switch (e.key.keysym.sym)
             {
             case SDLK_ESCAPE:
+                this->pause();
                 state_ = GameState::Paused;
                 break;
             case SDLK_RIGHT:
@@ -308,6 +306,7 @@ void Game::processInput(){
         // a key is pressed
         if (e.type == SDL_KEYDOWN){
             if (e.key.keysym.sym == SDLK_ESCAPE)
+            this->resume();
             state_ = GameState::Running;
         }
     }
@@ -460,3 +459,16 @@ void Game::reset()
     asteroids_interval_ = INITIAL_INTERVAL;
     createAstroid();
 }
+
+void Game::pause()
+{
+    // Save the the delta between the clock and the last asteroid
+    asteroid_delta_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - asteroid_time_);
+}
+
+void Game::resume()
+{
+    // Set the last asteroid time, according to the current system clock
+    asteroid_time_ = std::chrono::system_clock::now() - asteroid_delta_;
+}
+
