@@ -19,23 +19,9 @@ bool Game::init()
     // Initialize the random engine
     mt_ = std::make_shared<std::mt19937>(std::chrono::system_clock::now().time_since_epoch().count());
     
-      
-    // Define spaceship shape by a group of rectangles
-    DrawableRect rect;
-    spaceship_ = std::make_shared<Spaceship>();
-    rect.rect = {30, 0, 30, 30};
-    rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(std::move(rect));
-    rect.rect = {0, 30, 90, 30};
-    rect.color = {255, 255, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // set initial pose
-    spaceship_->setWidth(90);
-    spaceship_->setHeight(60);
-
-    spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
-
+    // Create the spaceship
+    createSpaceship() ;
+    
     //create the first asteroid;
     createAstroid();
 
@@ -179,20 +165,32 @@ void Game::createTexts(const int &countdown)
     auto message = std::make_shared<DrawableEntity>();
     DrawableText message_text;
     std::stringstream  text;
-    text  << "SCORE: " << score_ << " LEVEL: " << level_ + 1;
+    text  << "SCORE: " << score_ ;
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
-    message_text.rect = {0, 0, 380, 60};
+    message_text.rect = {550, 0, 180, 60};
 
     message->addText(std::move(message_text));
 
+    
+    // Create the Level entity
+    text.str("");
+    text.clear();
+
+    text << "Level: " << level_ + 1;//
+    message_text.text = text.str();
+    message_text.rect = {0, 40, 140, 60};
+
+    message->addText(std::move(message_text));
+    
+    
     // Create the asteroid timer entity
     text.str("");
     text.clear();
 
-    text << "NEXT ASTEROID IN: " << countdown;//
+    text << "ASTEROID IN: " << countdown;//
     message_text.text = text.str();
-    message_text.rect = {0, 40, 380, 60};
+    message_text.rect = {0, 80, 180, 60};
 
     message->addText(std::move(message_text));
     
@@ -344,12 +342,32 @@ void Game::processInput(){
 
 }
 
+
+void Game::createSpaceship()
+{
+    // Define spaceship shape by a group of rectangles
+    DrawableRect rect;
+    spaceship_ = std::make_shared<Spaceship>();
+    rect.rect = {30, 0, 30, 30};
+    rect.color = {255, 0, 0, 0};
+    spaceship_->addRect(std::move(rect));
+    rect.rect = {0, 30, 90, 30};
+    rect.color = {255, 255, 0, 0};
+    spaceship_->addRect(std::move(rect));
+
+    // set initial pose
+    spaceship_->setWidth(90);
+    spaceship_->setHeight(60);
+
+    spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
+
+}
 // Cretae a new astroid on a random place on the top row of the screen, with a random speed
 void Game::createAstroid()
 {
     auto asteroid = std::make_shared<Asteroid>();
     DrawableRect rect;
-    rect.color = {0, 0, 255, 0};
+    rect.color = {128, 0, 128, 0};
     
     rect.rect = {20,0,10,5};
     asteroid->addRect(std::move(rect));

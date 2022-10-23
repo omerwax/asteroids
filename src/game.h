@@ -37,6 +37,7 @@ namespace asteroids{
         void processInput();
         void render();
         void update();
+        void createSpaceship();
         void createAstroid();
         bool checkCollisions();
         void checkHits();

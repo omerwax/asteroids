@@ -27,7 +27,7 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile)
     Pose pose = this->getPose();
            
     rect.rect = {getWidth() / 2 - 6, - 20, 6, 20};
-    rect.color = {128, 128, 128, 0}; 
+    rect.color = {128, 0, 0, 0}; 
     missile->setWidth(6);
     missile->setHeight(20);
     missile->setPose(std::move(pose));
