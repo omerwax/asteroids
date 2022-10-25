@@ -45,6 +45,7 @@ namespace asteroids
         void setHeight(int h) { height_ = h; }
         std::vector<DrawableRect> getRects() { return rects_; }
         std::vector<DrawableText> getTexts() { return texts_; }
+        void clear();
         void addRect(DrawableRect &&rect){ rects_.emplace_back(rect); }
         void addText(DrawableText &&text){ texts_.emplace_back(text); }
         bool intersects(std::shared_ptr< DrawableEntity> entity);
