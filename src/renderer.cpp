@@ -62,11 +62,6 @@ Renderer::~Renderer()
 void Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
 {
     
-    // First clear 
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-
-    
     // Reneder all drawable entities
     for (auto &entity:entities){
         Pose pose = entity->getPose();
@@ -87,11 +82,47 @@ void Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
         }
     }
   
-    //Update the screen
-    SDL_RenderPresent(renderer_);
-
     return ;
 
+}
+
+void Renderer::render(std::shared_ptr<DrawableEntity> entity)
+{
+    if (!entity) return;
+    
+    auto  pose = entity->getPose();
+
+    for (auto &rect:entity->getRects()){
+        SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+        rect.rect.x += pose.x;
+        rect.rect.y += pose.y;
+        SDL_RenderFillRect(renderer_, &rect.rect);
+        rect.rect.x -= pose.x;
+        rect.rect.y -= pose.y;
+    }
+    // Render the texts
+    for (auto &text:entity->getTexts()){
+        auto texture = createTextureFromText(text.text, text.color);
+        SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
+                
+    }
+    return ;
+}
+
+// Clear the screen
+void Renderer::clear()
+{
+     
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    return;
+}
+
+// present to screen
+void Renderer::present()
+{
+    //Update the screen
+    SDL_RenderPresent(renderer_);
 }
 
 SDL_Texture* Renderer::createTextureFromText(std::string text, SDL_Color)
