@@ -168,7 +168,7 @@ void Game::createTexts(const int &countdown)
     text  << "SCORE: " << score_ ;
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
-    message_text.rect = {550, 0, 180, 60};
+    message_text.rect = {0, 0, 180, 60};
 
     message->addText(std::move(message_text));
 
