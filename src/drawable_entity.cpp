@@ -19,3 +19,9 @@ bool DrawableEntity::intersects(std::shared_ptr<DrawableEntity> entity)
     }
     return false;
 }
+
+void DrawableEntity::clear()
+{
+    texts_.clear();
+    rects_.clear();
+}

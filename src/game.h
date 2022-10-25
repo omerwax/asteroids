@@ -53,7 +53,7 @@ namespace asteroids{
         std::shared_ptr<Spaceship> spaceship_;
         std::vector<std::shared_ptr<Missile>> missiles_;
         std::vector<std::shared_ptr<Asteroid>> asteroids_;
-        std::vector<std::shared_ptr<DrawableEntity>> entities_;
+        std::shared_ptr<DrawableEntity> texts_;
 
         int fps_;
         int actual_fps_;
