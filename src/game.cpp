@@ -22,12 +22,17 @@ bool Game::init()
     
     texts_ = std::make_shared<DrawableEntity>();
     
-    
+    // Open the data file 
     auto data_file = std::fstream("../data/data");
+    // create a new file and open if it doesn't exist already
     if (!data_file.is_open()){
-        return false;
+        auto temp = std::ofstream("../data/data");
+        temp.close();
+        data_file = std::fstream("../data/data");
+
     }
 
+    
     std::string data;
     std::getline(data_file, data);
     if (data.empty()){
