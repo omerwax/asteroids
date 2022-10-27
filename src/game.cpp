@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 #include "game.h"
 #include "spaceship.h"
@@ -20,6 +21,25 @@ bool Game::init()
     mt_ = std::make_shared<std::mt19937>(std::chrono::system_clock::now().time_since_epoch().count());
     
     texts_ = std::make_shared<DrawableEntity>();
+    
+    
+    auto data_file = std::fstream("../data/data");
+    if (!data_file.is_open()){
+        return false;
+    }
+
+    std::string data;
+    std::getline(data_file, data);
+    if (data.empty()){
+        high_score_ = 0;
+    }
+    else{
+        std::istringstream input(data); 
+        input >> high_score_ ;
+        input >> high_score_player_;
+    }
+
+    data_file.close();
 
     createSpaceship();
     createAstroid();
@@ -58,9 +78,6 @@ void Game::run()
 {
     int frame = 0;
 
-    start_ = std::chrono::system_clock::now();
-    asteroid_time_ = start_; 
-
     // The main game loop
     while (state_ != GameState::End){
 
@@ -82,6 +99,8 @@ void Game::run()
             std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps_ << std::endl;
     }
 
+    updateHighScore();
+
 }
 
 // Update function update the position of all the game entities, check collisions and missile hits
@@ -92,6 +111,9 @@ void Game::update()
     switch (state_)
     {
     case GameState::Paused:
+        break;
+    case GameState::PlayerName:
+        updateGamePlayerName();
         break;
     case GameState::Running:
         updateGameRunning();
@@ -108,6 +130,32 @@ void Game::update()
     
     return;   
              
+}
+void Game::updateGamePlayerName()
+{
+    texts_->clear();
+    
+    DrawableText message_text;
+    
+    message_text.text = "PLEASE ENTER YOUR NAME";
+    message_text.color = {255, 255, 255, 0};
+    int rect_size_x = (int)message_text.text.length()*24;
+    int rect_pose_x = WINDOW_WIDTH / 2 - rect_size_x / 2;
+    message_text.rect = {rect_pose_x, 0, rect_size_x, 60};
+
+    texts_->addText(std::move(message_text));
+
+    message_text.text = player_name_;
+    message_text.color = {255, 255, 255, 0};
+    rect_size_x = (int)player_name_.length()*24;
+    rect_pose_x = WINDOW_WIDTH / 2 - rect_size_x / 2;
+    message_text.rect = {rect_pose_x, 330, rect_size_x, 60};
+
+    texts_->addText(std::move(message_text));
+
+  
+    return;
+
 }
 
 void Game::updateGameRunning()
@@ -160,6 +208,7 @@ void Game::updateGameRunning()
     if (checkCollisions()){
         std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
         final_score_ = score_;
+        prev_state_ = state_;
         state_ = GameState::GameOver;
     }
 
@@ -183,18 +232,28 @@ void Game::createTexts(const int &countdown)
     text  << "SCORE: " << score_ ;
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
-    message_text.rect = {0, 0, 180, 60};
+    int rect_size_x = (int)message_text.text.length()*24;
+    int rect_pose_x = WINDOW_WIDTH / 2 - rect_size_x / 2;
+    message_text.rect = {rect_pose_x, 0, rect_size_x, 60};
 
     texts_->addText(std::move(message_text));
 
+    // Create the Name entity
+    message_text.text = player_name_;
+    rect_size_x = (int)message_text.text.length()*24;
+    rect_size_x = std::min(rect_size_x, WINDOW_WIDTH / 4 );
+    message_text.rect = {0, 0, rect_size_x, 60};
+    texts_->addText(std::move(message_text));
+    
     
     // Create the Level entity
     text.str("");
     text.clear();
 
-    text << "Level: " << level_ + 1;//
+    text << "LEVEL: " << level_ + 1;//
     message_text.text = text.str();
-    message_text.rect = {0, 40, 140, 60};
+    rect_size_x = (int)message_text.text.length()*24;
+    message_text.rect = {0, 40, rect_size_x, 60};
 
     texts_->addText(std::move(message_text));
     
@@ -205,10 +264,34 @@ void Game::createTexts(const int &countdown)
 
     text << "ASTEROID IN: " << countdown;//
     message_text.text = text.str();
-    message_text.rect = {0, 80, 180, 60};
+    rect_size_x = (int)message_text.text.length()*24;
+    message_text.rect = {0, 80, rect_size_x, 60};
 
     texts_->addText(std::move(message_text));
-    
+
+    // Create the High score entity
+    if (high_score_ > 0){
+        text.str("");
+        text.clear();
+
+        text << "HIGH SCORE: " << high_score_;//
+        message_text.text = text.str();
+        rect_size_x = (int)message_text.text.length()*24;
+        message_text.rect = {0, 120, rect_size_x, 60};
+
+        texts_->addText(std::move(message_text));
+
+        // Create the High score name entity
+        text.str("");
+        text.clear();
+
+        text << "PLAYER: " << high_score_player_;//
+        message_text.text = text.str();
+        rect_size_x = (int)message_text.text.length()*24;
+        message_text.rect = {0, 160, rect_size_x, 60};
+
+        texts_->addText(std::move(message_text));
+    }
     
     // Create the FPS entity
     text.str("");
@@ -216,7 +299,9 @@ void Game::createTexts(const int &countdown)
 
     text << "FPS: " << actual_fps_;
     message_text.text = text.str();
-    message_text.rect = {1160, 0, 120, 60};
+    rect_size_x = (int)message_text.text.length()*24;
+    rect_pose_x = WINDOW_WIDTH - rect_size_x;
+    message_text.rect = {rect_pose_x, 0, rect_size_x, 60};
 
     texts_->addText(std::move(message_text));
 
@@ -226,11 +311,12 @@ void Game::createTexts(const int &countdown)
 
 void Game::updateGameOver()
 {
-    
+    // For static states, do not update more than once
+    if (prev_state_ == state_)
+        return;
     texts_->clear();
     asteroids_.clear();
-
-
+        
     DrawableText message_text;
     std::stringstream  text;
     text  << "Press the ENTER key to start again";
@@ -246,29 +332,47 @@ void Game::updateGameOver()
             
     texts_->addText(std::move(message_text));
 
-    text.str("");
-    text << "SCORE: " << final_score_;
-    message_text.text = text.str();
-    message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
-            
-    texts_->addText(std::move(message_text));
     
+    text.str("");
+    if (final_score_ > high_score_){
+        text << "NEW HIGH SCORE!!!: " << final_score_;
+        message_text.text = text.str();
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+        high_score_ = final_score_;
+        high_score_player_ = player_name_;
+        texts_->addText(std::move(message_text));
+    }
+    else{
+        text << "SCORE: " << final_score_;
+        message_text.text = text.str();
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+                
+        texts_->addText(std::move(message_text));
+    }
+
+    prev_state_ = state_;
     return;
 }
 
 void Game::updateGameIdle()
 {
     
+    // For static states, do not update more than once
+    if (prev_state_ == state_)
+        return;
     texts_->clear();
 
     DrawableText message_text;
     std::stringstream  text;
-    text  << "Asteroids!!! Press Any key to start";
+    text  << "Asteroids!!! Press space key to start shooting";
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
     message_text.rect = {WINDOW_WIDTH / 2 - WINDOW_WIDTH / 4 , 0, WINDOW_WIDTH / 2, 60};
 
     texts_->addText(std::move(message_text));
+    
+    prev_state_ = state_;
+
     return;
 
 }
@@ -284,6 +388,7 @@ void Game::processInput(){
         return;
     }
 
+
     std::shared_ptr<Missile> missile;
 
     if (state_ == GameState::Running){
@@ -293,6 +398,7 @@ void Game::processInput(){
             {
             case SDLK_ESCAPE:
                 this->pause();
+                prev_state_ = state_;
                 state_ = GameState::Paused;
                 break;
             case SDLK_RIGHT:
@@ -321,8 +427,11 @@ void Game::processInput(){
     // Any key to start playing
     else if (state_ == GameState::Idle){
         // a key is pressed
-        if (e.type == SDL_KEYDOWN){
-            state_ = GameState::Running;
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE){
+            start_ = std::chrono::system_clock::now();
+            asteroid_time_ = start_;
+            prev_state_ = state_;
+            state_ = GameState::PlayerName;
         }
     }
 
@@ -332,6 +441,7 @@ void Game::processInput(){
         this->reset();
         if (e.type == SDL_KEYDOWN){
             if (e.key.keysym.sym == SDLK_RETURN)
+            prev_state_ = state_;
             state_ = GameState::Running;
         }
     }
@@ -342,7 +452,31 @@ void Game::processInput(){
         if (e.type == SDL_KEYDOWN){
             if (e.key.keysym.sym == SDLK_ESCAPE)
             this->resume();
+            prev_state_ = state_;
             state_ = GameState::Running;
+        }
+    }
+
+    // Get Player Name
+    else if (state_ == GameState::PlayerName){
+        // a key is pressed
+        if (e.type == SDL_KEYDOWN){
+            if ((e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z)){
+                player_name_ += char(e.key.keysym.sym - 32);
+            }
+            if ((e.key.keysym.sym == SDLK_SPACE )){
+                player_name_ += char(SDLK_SPACE);
+            }
+            else if(e.key.keysym.sym == SDLK_BACKSPACE){
+                if (player_name_.size() > 0) player_name_.resize(player_name_.size() - 1);
+            }
+            else if (e.key.keysym.sym == SDLK_RETURN)
+            {
+                if (player_name_.size() == 0)
+                    player_name_ = "PLAYER1";
+                prev_state_ = state_;
+                state_ = GameState::Running;
+            }
         }
     }
 
@@ -476,3 +610,12 @@ void Game::resume()
     asteroid_time_ = std::chrono::system_clock::now() - asteroid_delta_;
 }
 
+void Game::updateHighScore()
+{
+    auto data_file = std::ofstream("../data/data");
+    if (!data_file.is_open()){
+        return;
+    }
+    data_file << high_score_ << " " << high_score_player_;
+    data_file.close();
+}

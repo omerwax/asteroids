@@ -20,13 +20,13 @@
 
 namespace asteroids{
 
-    enum class GameState{Idle, Running, GameOver, Paused, End};
+    enum class GameState{Init, Idle, PlayerName, Running, GameOver, Paused, End};
     
     class Game{
     public:
         Game(int fps) : fps_(fps), 
                         width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
-                        state_(GameState::Running), score_(0), 
+                        state_(GameState::Init), score_(0), 
                         asteroids_interval_(INITIAL_INTERVAL),
                         level_(0){};
         bool init();
@@ -47,7 +47,10 @@ namespace asteroids{
         void updateGameOver();
         void updateGameIdle();
         void updateGameRunning();
+        void updateGamePlayerName();
+        void updateHighScore();
         void createTexts(const int &countdown);
+        int getTextSize(const int &font_size);
         
                 
         std::shared_ptr<Spaceship> spaceship_;
@@ -55,6 +58,7 @@ namespace asteroids{
         std::vector<std::shared_ptr<Asteroid>> asteroids_;
         std::shared_ptr<DrawableEntity> texts_;
 
+        std::string player_name_;
         int fps_;
         int actual_fps_;
         int asteroids_interval_;
@@ -65,8 +69,11 @@ namespace asteroids{
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
         const int max_speed_ = 10;
+        int high_score_;
+        std::string high_score_player_;
         Renderer renderer_{width_, height_};
         GameState state_;
+        GameState prev_state_;
 
         std::shared_ptr<std::mt19937> mt_;
         std::chrono::time_point<std::chrono::system_clock> asteroid_time_;

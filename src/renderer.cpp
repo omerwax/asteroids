@@ -37,7 +37,7 @@ bool Renderer::init()
 
     TTF_Init();
     auto font_path = fs::current_path().parent_path().string() + "/fonts/FreeSans.ttf";
-    font_ = TTF_OpenFont(font_path.c_str(),  48 );
+    font_ = TTF_OpenFont(font_path.c_str(),  48);
 
      if (font_ == NULL)
         return false;
@@ -102,9 +102,10 @@ void Renderer::render(std::shared_ptr<DrawableEntity> entity)
     }
     // Render the texts
     for (auto &text:entity->getTexts()){
-        auto texture = createTextureFromText(text.text, text.color);
-        SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
-                
+        if (!text.text.empty()){
+            auto texture = createTextureFromText(text.text, text.color);
+            SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
+        }
     }
     return ;
 }
