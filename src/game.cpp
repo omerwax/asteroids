@@ -4,11 +4,13 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <experimental/filesystem>
 
 #include "game.h"
 #include "spaceship.h"
 
 using namespace asteroids;
+namespace fs = std::experimental::filesystem;
 
 bool Game::init()
 {
@@ -26,6 +28,10 @@ bool Game::init()
     auto data_file = std::fstream("../data/data");
     // create a new file and open if it doesn't exist already
     if (!data_file.is_open()){
+        // check if the directory exists
+        if (!fs::exists("../data")){
+            fs::create_directory("../data");
+        }
         auto temp = std::ofstream("../data/data");
         temp.close();
         data_file = std::fstream("../data/data");
