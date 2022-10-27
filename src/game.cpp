@@ -106,8 +106,7 @@ void Game::run()
         if (frame % fps_ == 0)
             actual_fps_ = 1000.0 / frame_duration.count();
         ++frame;
-        if (actual_fps_ < fps_ - 5)
-            std::cout << "Frame#" << frame << ", Actual fps = " << actual_fps_ << std::endl;
+       
     }
 
     updateHighScore();
@@ -585,7 +584,6 @@ void Game::checkHits()
             if (missile->intersects(asteroid)){
                 asteroid->explode();
                 missile->explode();
-                std::cout << "Missile Hit" << std::endl;
                 score_ += 100;
             }
         }

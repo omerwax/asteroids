@@ -16,7 +16,11 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    std::cout << "Game is initializied" << std::endl;
+
     game.run();
+
+    std::cout << "Exiting Game" << std::endl;
 
     return 0;
 }

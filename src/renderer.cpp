@@ -49,7 +49,6 @@ bool Renderer::init()
 
 Renderer::~Renderer()
 {
-    std::cout<< "Renderer::~Renderer()" << std::endl;
     if (initiated_){
         SDL_DestroyRenderer(renderer_);
         SDL_DestroyWindow(window_);
