@@ -8,6 +8,7 @@
 
 #include "game.h"
 #include "spaceship.h"
+#include "macaron_base64.h"
 
 using namespace asteroids;
 namespace fs = std::experimental::filesystem;
@@ -39,12 +40,13 @@ bool Game::init()
     }
 
     
-    std::string data;
-    std::getline(data_file, data);
-    if (data.empty()){
+    std::string data_b64, data;
+    std::getline(data_file, data_b64);
+    if (data_b64.empty()){
         high_score_ = 0;
     }
     else{
+        macaron::Base64::Decode(data_b64, data);
         std::istringstream input(data); 
         input >> high_score_ ;
         input >> high_score_player_;
@@ -625,6 +627,10 @@ void Game::updateHighScore()
     if (!data_file.is_open()){
         return;
     }
-    data_file << high_score_ << " " << high_score_player_;
+    
+    std::stringstream data;
+    data << high_score_ << " " << high_score_player_;
+    
+    data_file << macaron::Base64::Encode(data.str());
     data_file.close();
 }
