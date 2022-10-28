@@ -10,7 +10,8 @@ Spaceship::Spaceship()
     shot_time_ = std::chrono::system_clock::now();
 }
 
-void Spaceship::shoot(std::shared_ptr<Missile> &missile)
+
+void Spaceship::shoot(std::shared_ptr<Missile> &missile, const Launcher& launcher)
 {
     
     auto shots_interval = std::chrono::duration_cast<std::chrono::milliseconds>
@@ -24,18 +25,32 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile)
     missile = std::make_shared<Missile>();
 
     DrawableRect rect;
-    Pose pose = this->getPose();
-           
-    rect.rect = {getWidth() / 2 - 6, - 20, 6, 20};
-    rect.color = {128, 0, 0, 0}; 
-    missile->setWidth(6);
+    // get the spaceship pose set missile pose to the spaceship pose
+    Pose pose = this->pose_;
+
+    // calculate the x pose accroding to the launcher side
+    int pose_x = 0;
+    if (launcher == Launcher::Left){
+        pose_x = 45;
+    }
+    else{
+        pose_x = 105;
+    }    
+    
+    // define the missile rectangle
+    rect.rect = {pose_x, -20, 10, 20};
+    rect.color = {128, 128, 0, 0}; 
+    missile->setWidth(10);
     missile->setHeight(20);
     missile->setPose(std::move(pose));
 
     missile->addRect(std::move(rect));
     missile->setSpeed(Speed(0, -5));
 
-    shot_time_ = std::chrono::system_clock::now();
+    if (launcher == Launcher::Right){
+        shot_time_ = std::chrono::system_clock::now();
+    }
+    
     return ;
 
 }

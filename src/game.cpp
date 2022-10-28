@@ -39,7 +39,7 @@ bool Game::init()
 
     }
 
-    
+    // read the high_Score and player data
     std::string data_b64, data;
     std::getline(data_file, data_b64);
     if (data_b64.empty()){
@@ -77,7 +77,7 @@ void Game::render()
         
         // render te missiles
         for (auto &missile:missiles_)
-            renderer_.render(missile);
+             renderer_.render(missile);
     }
     
     // render the texts;
@@ -111,6 +111,7 @@ void Game::run()
        
     }
 
+    // Update the highscore when game is finished
     updateHighScore();
 
 }
@@ -232,6 +233,7 @@ void Game::updateGameRunning()
 
 }
 
+// Create the GameRunning state texts
 void Game::createTexts(const int &countdown)
 {
     
@@ -401,7 +403,8 @@ void Game::processInput(){
     }
 
 
-    std::shared_ptr<Missile> missile;
+    std::shared_ptr<Missile> missile_l;
+    std::shared_ptr<Missile> missile_r;
 
     if (state_ == GameState::Running){
         // a key is pressed
@@ -426,9 +429,11 @@ void Game::processInput(){
                 spaceship_->accelDown();
                 break;
             case SDLK_SPACE:
-                spaceship_->shoot(missile);
-                if (missile){
-                    missiles_.emplace_back(missile);
+                spaceship_->shoot(missile_l, Launcher::Left);
+                spaceship_->shoot(missile_r, Launcher::Right);
+                if (missile_l && missile_r){
+                    missiles_.emplace_back(missile_l);
+                    missiles_.emplace_back(missile_r);
                 }
                 break;
             default:
@@ -496,22 +501,46 @@ void Game::processInput(){
 
 }
 
-
 void Game::createSpaceship()
 {
     // Define spaceship shape by a group of rectangles
     DrawableRect rect;
     spaceship_ = std::make_shared<Spaceship>();
-    rect.rect = {30, 0, 30, 30};
+    
+    // Left launcher
+    rect.rect = {40, 0, 20, 40};
     rect.color = {255, 0, 0, 0};
     spaceship_->addRect(std::move(rect));
-    rect.rect = {0, 30, 90, 30};
+
+    // Right launcher
+    rect.rect = {100, 0, 20, 40};
+    rect.color = {255, 0, 0, 0};
+    spaceship_->addRect(std::move(rect));
+
+    // Launchers base
+    rect.rect = {20, 40, 120, 20};
     rect.color = {255, 255, 0, 0};
     spaceship_->addRect(std::move(rect));
 
+    // Body
+    rect.rect = {0, 60, 160, 40};
+    rect.color = {255, 127, 0, 0};
+    spaceship_->addRect(std::move(rect));
+
+    // Left engine
+    rect.rect = {20, 100, 40, 10};
+    rect.color = {255, 0, 0, 0};
+    spaceship_->addRect(std::move(rect));
+
+    // Right engine
+    rect.rect = {100, 100, 40, 10};
+    rect.color = {255, 0, 0, 0};
+    spaceship_->addRect(std::move(rect));
+
+
     // set initial pose
-    spaceship_->setWidth(90);
-    spaceship_->setHeight(60);
+    spaceship_->setWidth(160);
+    spaceship_->setHeight(110);
 
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
 

@@ -16,6 +16,7 @@
 
 namespace asteroids
 {
+    enum class Launcher{Left,Right};
     
     class Spaceship : public MovingEntity {
     public:
@@ -26,7 +27,7 @@ namespace asteroids
         void accelUp(){ speed_.y = std::max(speed_.y - accel_,  - 1 * max_speed_); }
         void stop(){ speed_ = Speed(0,0); }
         void updatePose() override;
-        void shoot(std::shared_ptr<Missile> &missile);
+        void shoot(std::shared_ptr<Missile> &missile, const Launcher& launcher);
         
             
     private:
