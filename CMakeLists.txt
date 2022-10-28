@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS} src)
+include_directories(${SDL2_INCLUDE_DIRS} include)
 
 file(GLOB src_files "src/*.cpp")
 
@@ -25,4 +25,4 @@ find_package(SDL2_ttf REQUIRED)
 add_executable(asteroids ${src_files})
 target_link_libraries(asteroids  stdc++fs)
 target_link_libraries(asteroids ${SDL2_LIBRARIES})
-target_link_libraries(asteroids SDL2::TTF) 
+target_link_libraries(asteroids SDL2::TTF)
