@@ -339,7 +339,7 @@ void Game::updateGameOver()
     text.str("");
     text << "GAME OVER!!!";
     message_text.text = text.str();
-    message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 - 80, WINDOW_WIDTH / 4, 60};
+    message_text.rect = {WINDOW_WIDTH * 3 / 8 ,0, WINDOW_WIDTH / 4, 60};
             
     texts_->addText(std::move(message_text));
 
@@ -348,7 +348,7 @@ void Game::updateGameOver()
     if (final_score_ > high_score_){
         text << "NEW HIGH SCORE!!!: " << final_score_;
         message_text.text = text.str();
-        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , 80, WINDOW_WIDTH / 4, 60};
         high_score_ = final_score_;
         high_score_player_ = player_name_;
         texts_->addText(std::move(message_text));
@@ -358,7 +358,7 @@ void Game::updateGameOver()
     else{
         text << "SCORE: " << final_score_;
         message_text.text = text.str();
-        message_text.rect = {WINDOW_WIDTH * 3 / 8 , WINDOW_HEIGHT / 2 + 20, WINDOW_WIDTH / 4, 60};
+        message_text.rect = {WINDOW_WIDTH * 3 / 8 , 80, WINDOW_WIDTH / 4, 60};
                 
         texts_->addText(std::move(message_text));
     }
