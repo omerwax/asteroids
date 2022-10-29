@@ -111,9 +111,8 @@ void Game::run()
        
     }
 
-    // Update the highscore when game is finished
-    updateHighScore();
-
+    return;
+    
 }
 
 // Update function update the position of all the game entities, check collisions and missile hits
@@ -355,6 +354,8 @@ void Game::updateGameOver()
         high_score_ = final_score_;
         high_score_player_ = player_name_;
         texts_->addText(std::move(message_text));
+        // Update the highscore data file
+        updateHighScore();
     }
     else{
         text << "SCORE: " << final_score_;
@@ -649,7 +650,7 @@ void Game::resume()
     // Set the last asteroid time, according to the current system clock
     asteroid_time_ = std::chrono::system_clock::now() - asteroid_delta_;
 }
-
+// Writes the high score value to the data file
 void Game::updateHighScore()
 {
     auto data_file = std::ofstream("../data/data");
