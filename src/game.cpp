@@ -55,7 +55,6 @@ bool Game::init()
     data_file.close();
 
     createSpaceship();
-    createAstroid();
     
     state_ = GameState::Idle;
 
@@ -445,8 +444,6 @@ void Game::processInput(){
     else if (state_ == GameState::Idle){
         // a key is pressed
         if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE){
-            start_ = std::chrono::system_clock::now();
-            asteroid_time_ = start_;
             prev_state_ = state_;
             state_ = GameState::PlayerName;
         }
