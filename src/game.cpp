@@ -67,7 +67,7 @@ void Game::render()
     // clear the screen
     renderer_.clear();
     
-    if (state_ == GameState::Running || state_ == GameState::Paused){
+    if (state_ == GameState::Running || state_ == GameState::Paused || state_ == GameState::GameOver){
         // render the spaceship
         renderer_.render(spaceship_);
 
@@ -328,7 +328,6 @@ void Game::updateGameOver()
     if (prev_state_ == state_)
         return;
     texts_->clear();
-    asteroids_.clear();
         
     DrawableText message_text;
     std::stringstream  text;
@@ -455,12 +454,13 @@ void Game::processInput(){
 
     // Return to start again
     else if (state_ == GameState::GameOver){
-        // a key is pressed
-        this->reset();
         if (e.type == SDL_KEYDOWN){
-            if (e.key.keysym.sym == SDLK_RETURN)
-            prev_state_ = state_;
-            state_ = GameState::Running;
+            if (e.key.keysym.sym == SDLK_RETURN){
+                // a key is pressed
+                this->reset();
+                prev_state_ = state_;
+                state_ = GameState::Running;
+            }
         }
     }
 
@@ -469,9 +469,11 @@ void Game::processInput(){
         // a key is pressed
         if (e.type == SDL_KEYDOWN){
             if (e.key.keysym.sym == SDLK_ESCAPE)
-            this->resume();
-            prev_state_ = state_;
-            state_ = GameState::Running;
+            {
+                this->resume();
+                prev_state_ = state_;
+                state_ = GameState::Running;
+            }
         }
     }
 
@@ -490,8 +492,9 @@ void Game::processInput(){
             }
             else if (e.key.keysym.sym == SDLK_RETURN)
             {
-                if (player_name_.size() == 0)
+                if (player_name_.size() == 0){
                     player_name_ = "PLAYER1";
+                }
                 prev_state_ = state_;
                 state_ = GameState::Running;
             }
