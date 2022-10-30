@@ -77,6 +77,7 @@ void Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
         for (auto &text:entity->getTexts()){
             auto texture = createTextureFromText(text.text, text.color);
             SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
+            SDL_DestroyTexture(texture);
                     
         }
     }
@@ -104,6 +105,7 @@ void Renderer::render(std::shared_ptr<DrawableEntity> entity)
         if (!text.text.empty()){
             auto texture = createTextureFromText(text.text, text.color);
             SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
+            SDL_DestroyTexture(texture);
         }
     }
     return ;
