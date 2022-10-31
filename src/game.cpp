@@ -96,6 +96,7 @@ void Game::run()
         // get the current time
         auto start = std::chrono::system_clock::now(); 
         processInput();
+        processEvents();
         update();
         render();
         auto sleep_time = MS_PER_FRAME_ - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count();
@@ -393,41 +394,113 @@ void Game::updateGameIdle()
 void Game::processInput(){
     //Handle events on queue
     SDL_Event e;
-    SDL_PollEvent(&e);
-    
-    // First check for quit event
-    if (e.type == SDL_QUIT){
-        state_ = GameState::End;
-        return;
-    }
-
-
-    std::shared_ptr<Missile> missile_l;
-    std::shared_ptr<Missile> missile_r;
-
-    if (state_ == GameState::Running){
-        // a key is pressed
+    while (SDL_PollEvent(&e) != 0){
+        // First check for quit event
+        if (e.type == SDL_QUIT){
+            events_.emplace_back(GameEvent(EventType::End));
+            return;
+        }
         if (e.type == SDL_KEYDOWN){
-            switch (e.key.keysym.sym)
-            {
-            case SDLK_ESCAPE:
+            switch (state_){
+                case GameState::GameOver:
+                    if (e.key.keysym.sym == SDLK_RETURN){
+                        events_.emplace_back(GameEvent(EventType::Restart));
+                    }
+                    if (e.key.keysym.sym == SDLK_q){ 
+                        events_.emplace_back(GameEvent(EventType::End));
+                        return;
+                    }
+                    break;
+                case GameState::Paused:
+                    if(e.key.keysym.sym == SDLK_ESCAPE){
+                        events_.emplace_back(GameEvent(EventType::Resume));
+                    }
+                    break;
+                case GameState::Idle:
+                    if(e.key.keysym.sym == SDLK_SPACE){
+                        events_.emplace_back(GameEvent(EventType::Name));
+                    }
+                    break;
+                case GameState::PlayerName:
+                        events_.emplace_back(GameEvent(EventType::KeyTyped, e.key.keysym.sym));
+                    break;
+                case GameState::Running:
+                    if(e.key.keysym.sym == SDLK_ESCAPE){
+                        events_.emplace_back(GameEvent(EventType::Pause));
+                    }
+                    if(e.key.keysym.sym == SDLK_SPACE){
+                        events_.emplace_back(GameEvent(EventType::Shoot));
+                    }
+                    if(e.key.keysym.sym == SDLK_RIGHT){
+                        events_.emplace_back(GameEvent(EventType::AccelRight));
+                    }
+                    if(e.key.keysym.sym == SDLK_LEFT){
+                        events_.emplace_back(GameEvent(EventType::AccelLeft));
+                    }
+                    if(e.key.keysym.sym == SDLK_UP){
+                        events_.emplace_back(GameEvent(EventType::AccelUp));
+                    }
+                    if(e.key.keysym.sym == SDLK_DOWN){
+                        events_.emplace_back(GameEvent(EventType::AccelDown));
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }      
+    }
+    return;
+}
+
+void Game::processEvents(){
+
+    while (events_.size() > 0){
+        
+        auto event = events_.front();
+        events_.erase(events_.begin());
+        auto e_type = event.type();
+        
+        if (e_type == EventType::End){
+            state_ = GameState::End;
+            return;
+        }
+
+        std::shared_ptr<Missile> missile_l;
+        std::shared_ptr<Missile> missile_r;
+
+        auto key = event.key();
+
+        
+        switch(e_type){
+            case EventType::Pause:
                 this->pause();
                 prev_state_ = state_;
                 state_ = GameState::Paused;
                 break;
-            case SDLK_RIGHT:
+            case EventType::Resume:
+                this->resume();
+                prev_state_ = state_;
+                state_ = GameState::Running;
+                break;
+            case EventType::Restart:
+                this->reset();
+                prev_state_ = state_;
+                state_ = GameState::Running;
+                break;
+            case EventType::AccelRight:
                 spaceship_->accelRight();
                 break;
-            case SDLK_LEFT:
+            case EventType::AccelLeft:
                 spaceship_->accelLeft();
                 break;
-            case SDLK_UP:
+            case EventType::AccelUp:
                 spaceship_->accelUp();
                 break;
-            case SDLK_DOWN:
+            case EventType::AccelDown:
                 spaceship_->accelDown();
                 break;
-            case SDLK_SPACE:
+            case EventType::Shoot:
                 spaceship_->shoot(missile_l, Launcher::Left);
                 spaceship_->shoot(missile_r, Launcher::Right);
                 if (missile_l && missile_r){
@@ -435,71 +508,34 @@ void Game::processInput(){
                     missiles_.emplace_back(missile_r);
                 }
                 break;
+            case EventType::Name:
+                state_ = GameState::PlayerName;
+                break;
+            case EventType::KeyTyped:
+                if ((key >= SDLK_a && key <= SDLK_z)){
+                    player_name_ += char(key - 32);
+                }
+                if ((key == SDLK_SPACE )){
+                    player_name_ += char(SDLK_SPACE);
+                }
+                else if(key == SDLK_BACKSPACE){
+                    if (player_name_.size() > 0) player_name_.resize(player_name_.size() - 1);
+                }
+                else if (key == SDLK_RETURN)
+                {
+                    if (player_name_.size() == 0){
+                        player_name_ = "PLAYER1";
+                    }
+                    prev_state_ = state_;
+                    state_ = GameState::Running;
+                }
+                break;
             default:
                 break;
-            }
         }
-    }
-    // Any key to start playing
-    else if (state_ == GameState::Idle){
-        // a key is pressed
-        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE){
-            prev_state_ = state_;
-            state_ = GameState::PlayerName;
-        }
-    }
-
-    // Return to start again
-    else if (state_ == GameState::GameOver){
-        if (e.type == SDL_KEYDOWN){
-            if (e.key.keysym.sym == SDLK_RETURN){
-                // a key is pressed
-                this->reset();
-                prev_state_ = state_;
-                state_ = GameState::Running;
-            }
-        }
-    }
-
-    // Return to start again
-    else if (state_ == GameState::Paused){
-        // a key is pressed
-        if (e.type == SDL_KEYDOWN){
-            if (e.key.keysym.sym == SDLK_ESCAPE)
-            {
-                this->resume();
-                prev_state_ = state_;
-                state_ = GameState::Running;
-            }
-        }
-    }
-
-    // Get Player Name
-    else if (state_ == GameState::PlayerName){
-        // a key is pressed
-        if (e.type == SDL_KEYDOWN){
-            if ((e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z)){
-                player_name_ += char(e.key.keysym.sym - 32);
-            }
-            if ((e.key.keysym.sym == SDLK_SPACE )){
-                player_name_ += char(SDLK_SPACE);
-            }
-            else if(e.key.keysym.sym == SDLK_BACKSPACE){
-                if (player_name_.size() > 0) player_name_.resize(player_name_.size() - 1);
-            }
-            else if (e.key.keysym.sym == SDLK_RETURN)
-            {
-                if (player_name_.size() == 0){
-                    player_name_ = "PLAYER1";
-                }
-                prev_state_ = state_;
-                state_ = GameState::Running;
-            }
-        }
-    }
-
-    return;
-
+       
+    }   
+   
 }
 
 void Game::createSpaceship()
