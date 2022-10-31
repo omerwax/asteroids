@@ -96,7 +96,6 @@ void Game::run()
         // get the current time
         auto start = std::chrono::system_clock::now(); 
         processInput();
-        processEvents();
         update();
         render();
         auto sleep_time = MS_PER_FRAME_ - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count();
@@ -119,7 +118,9 @@ void Game::run()
 // In addition it populates the entities_ vector with entities for rendering. It also 
 void Game::update()
 {
-       
+    // Process events 
+    processEvents();   
+    
     switch (state_)
     {
     case GameState::Paused:
@@ -331,7 +332,7 @@ void Game::updateGameOver()
         
     DrawableText message_text;
     std::stringstream  text;
-    text  << "Press the ENTER key to start again";
+    text  << "Press the SPACE key to playt again";
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
     message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
@@ -403,7 +404,7 @@ void Game::processInput(){
         if (e.type == SDL_KEYDOWN){
             switch (state_){
                 case GameState::GameOver:
-                    if (e.key.keysym.sym == SDLK_RETURN){
+                    if (e.key.keysym.sym == SDLK_SPACE){
                         events_.emplace_back(GameEvent(EventType::Restart));
                     }
                     if (e.key.keysym.sym == SDLK_q){ 
