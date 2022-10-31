@@ -9,6 +9,7 @@
 #include "drawable_entity.h"
 #include "spaceship.h"
 #include "asteroid.h"
+#include "game_event.h"
 
 
 #define WINDOW_WIDTH 1280
@@ -35,6 +36,7 @@ namespace asteroids{
     private:
         
         void processInput();
+        void processEvents();
         void render();
         void update();
         void createSpaceship();
@@ -57,6 +59,8 @@ namespace asteroids{
         std::vector<std::shared_ptr<Missile>> missiles_;
         std::vector<std::shared_ptr<Asteroid>> asteroids_;
         std::shared_ptr<DrawableEntity> texts_;
+
+        std::vector<GameEvent> events_;
 
         std::string player_name_;
         int fps_;
