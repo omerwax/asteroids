@@ -484,7 +484,6 @@ void Game::processEvents(){
                 state_ = GameState::Running;
                 break;
             case EventType::Restart:
-                this->reset();
                 prev_state_ = state_;
                 state_ = GameState::PlayerName;
                 break;
@@ -529,6 +528,7 @@ void Game::processEvents(){
                 {
                     prev_state_ = state_;
                     state_ = GameState::Running;
+                    this->reset();
                 }
                 break;
             default:
