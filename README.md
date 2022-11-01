@@ -9,12 +9,12 @@ This is the final project for the Udacity C++ nanodegree program
 
 ## External Dependecies
 
-The project depends on SDL2 library and the SDL2_ttf module.
+The project depends on SDL2 library and the modules SDL2_ttf and SDL2_mixer modules.
 On a Linux machine with a debian package manager,
 the modules can be installed with the following command:
 
 ```sh
-sudo apt-get install libsdl2-dev && sudo apt-get install libsdl2-ttf-dev
+sudo apt-get install libsdl2-dev && sudo apt-get install libsdl2-ttf-dev && sudo apt-get install libsdl2-mixer-dev
 ```
 Other machines types installation instructions:
 [here](https://wiki.libsdl.org/Installation)
