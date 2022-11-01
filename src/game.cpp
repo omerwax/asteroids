@@ -332,7 +332,7 @@ void Game::updateGameOver()
         
     DrawableText message_text;
     std::stringstream  text;
-    text  << "Press the ENTER key to playy again";
+    text  << "Press the ENTER key to play again";
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
     message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
@@ -506,7 +506,11 @@ void Game::processEvents(){
                 if (missile_l && missile_r){
                     missiles_.emplace_back(missile_l);
                     missiles_.emplace_back(missile_r);
+                    renderer_.playSFX(SFX_Type::Launch);
                 }
+                break;
+            case EventType::Hit:
+                renderer_.playSFX(SFX_Type::Hit);
                 break;
             case EventType::Name:
                 state_ = GameState::PlayerName;
@@ -623,6 +627,7 @@ bool Game::checkCollisions(){
     for (auto &asteroid:asteroids_){
         // Check intersection with the spacship
         if (spaceship_->intersects(asteroid)){
+            renderer_.playSFX(SFX_Type::GameOver);
             return true;
         }
     }
@@ -647,6 +652,7 @@ void Game::checkHits()
                 continue;
             // Check intersection between missile and asteroid
             if (missile->intersects(asteroid)){
+                events_.emplace_back(EventType::Hit);
                 asteroid->explode();
                 missile->explode();
                 score_ += 100;

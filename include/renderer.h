@@ -8,6 +8,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include "drawable_entity.h"
 #include "spaceship.h"
@@ -15,6 +16,8 @@
 
 namespace asteroids
 {
+    enum class SFX_Type{Launch, Hit, GameOver};
+    
     class Renderer{
     public:
         Renderer(int window_width, int window_height) : 
@@ -25,6 +28,7 @@ namespace asteroids
         bool init();
         void render(std::vector<std::shared_ptr<DrawableEntity>> &entities);
         void render(std::shared_ptr<DrawableEntity> entity);
+        void playSFX(const SFX_Type& type);
         void clear();
         void present();
         SDL_Texture * createTextureFromText(std::string, SDL_Color);
@@ -32,9 +36,13 @@ namespace asteroids
         bool initiated_;
         int width_;
         int height_;
+
         SDL_Window * window_;
         SDL_Renderer * renderer_;
         TTF_Font * font_;
+        Mix_Chunk * launch_sfx_;
+        Mix_Chunk * hit_sfx_;
+        Mix_Chunk * game_over_sfx_;
     };
 }
 
