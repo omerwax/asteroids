@@ -29,7 +29,7 @@ namespace asteroids{
                         width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
                         state_(GameState::Init), score_(0), 
                         asteroids_interval_(INITIAL_INTERVAL),
-                        level_(0){};
+                        level_(0), player_name_("PLAYER1"){};
         bool init();
         void run();
         

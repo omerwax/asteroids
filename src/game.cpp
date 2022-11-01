@@ -299,7 +299,7 @@ void Game::createTexts(const int &countdown)
         text.str("");
         text.clear();
 
-        text << "PLAYER: " << high_score_player_;//
+        text << high_score_player_;//
         message_text.text = text.str();
         rect_size_x = (int)message_text.text.length()*24;
         message_text.rect = {0, 160, rect_size_x, 60};
@@ -471,8 +471,7 @@ void Game::processEvents(){
         std::shared_ptr<Missile> missile_r;
 
         auto key = event.key();
-
-        
+      
         switch(e_type){
             case EventType::Pause:
                 this->pause();
@@ -487,7 +486,7 @@ void Game::processEvents(){
             case EventType::Restart:
                 this->reset();
                 prev_state_ = state_;
-                state_ = GameState::Running;
+                state_ = GameState::PlayerName;
                 break;
             case EventType::AccelRight:
                 spaceship_->accelRight();
@@ -514,7 +513,7 @@ void Game::processEvents(){
                 break;
             case EventType::KeyTyped:
                 if ((key >= SDLK_a && key <= SDLK_z)){
-                    player_name_ += char(key - 32);
+                    player_name_+= char(key - 32);
                 }
                 if ((key == SDLK_SPACE )){
                     player_name_ += char(SDLK_SPACE);
@@ -524,9 +523,6 @@ void Game::processEvents(){
                 }
                 else if (key == SDLK_RETURN)
                 {
-                    if (player_name_.size() == 0){
-                        player_name_ = "PLAYER1";
-                    }
                     prev_state_ = state_;
                     state_ = GameState::Running;
                 }
