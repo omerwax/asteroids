@@ -332,7 +332,7 @@ void Game::updateGameOver()
         
     DrawableText message_text;
     std::stringstream  text;
-    text  << "Press the SPACE key to playt again";
+    text  << "Press the ENTER key to playy again";
     message_text.text = text.str();
     message_text.color = {255, 255, 255, 0};
     message_text.rect = {WINDOW_WIDTH / 4 , WINDOW_HEIGHT - 80, WINDOW_WIDTH / 2, 60};
@@ -404,7 +404,7 @@ void Game::processInput(){
         if (e.type == SDL_KEYDOWN){
             switch (state_){
                 case GameState::GameOver:
-                    if (e.key.keysym.sym == SDLK_SPACE){
+                    if (e.key.keysym.sym == SDLK_RETURN){
                         events_.emplace_back(GameEvent(EventType::Restart));
                     }
                     if (e.key.keysym.sym == SDLK_q){ 
