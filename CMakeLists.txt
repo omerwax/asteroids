@@ -21,8 +21,12 @@ file(GLOB src_files "src/*.cpp")
 
 # Add SDL2_ttf library
 find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+
 
 add_executable(asteroids ${src_files})
 target_link_libraries(asteroids  stdc++fs)
 target_link_libraries(asteroids ${SDL2_LIBRARIES})
 target_link_libraries(asteroids SDL2::TTF)
+
+target_link_libraries(asteroids SDL2::Mixer)

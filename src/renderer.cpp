@@ -13,11 +13,11 @@ using namespace asteroids;
 bool Renderer::init()
 {
     // SDL INIT
-    if (SDL_Init(SDL_INIT_VIDEO) != 0){
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
 	}
-
+    
     // Create a SDL WINDOW
     window_ = SDL_CreateWindow("SDL2 - Asteroids", 100, 100, width_, height_, SDL_WINDOW_SHOWN);
     if (window_ == nullptr){
@@ -39,8 +39,39 @@ bool Renderer::init()
     auto font_path = fs::current_path().parent_path().string() + "/fonts/FreeSans.ttf";
     font_ = TTF_OpenFont(font_path.c_str(),  48);
 
-     if (font_ == NULL)
+    if (font_ == NULL){
         return false;
+    }
+    
+    // Open the audio channel
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ){
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //Load sound effects
+    auto sfx_path = fs::current_path().parent_path().string() + "/sfx/launch.wav";
+    launch_sfx_ = Mix_LoadWAV( sfx_path.c_str() );
+    if( launch_sfx_ == NULL )
+    {
+        printf( "Failed to load sfx sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    sfx_path = fs::current_path().parent_path().string() + "/sfx/hit.wav";
+    hit_sfx_ = Mix_LoadWAV( sfx_path.c_str() );
+    if( hit_sfx_ == NULL )
+    {
+        printf( "Failed to load sfx sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+    sfx_path = fs::current_path().parent_path().string() + "/sfx/game_over.wav";
+    game_over_sfx_ = Mix_LoadWAV( sfx_path.c_str() );
+    if( game_over_sfx_ == NULL )
+    {
+        printf( "Failed to load sfx sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
     
     this->initiated_ = true;
 
@@ -52,6 +83,9 @@ Renderer::~Renderer()
     if (initiated_){
         SDL_DestroyRenderer(renderer_);
         SDL_DestroyWindow(window_);
+        Mix_FreeChunk(launch_sfx_);
+        Mix_FreeChunk(hit_sfx_);
+        Mix_FreeChunk(game_over_sfx_);
         SDL_Quit();
         TTF_Quit();
     }
@@ -147,3 +181,29 @@ SDL_Texture* Renderer::createTextureFromText(std::string text, SDL_Color)
     return texture;
 }
 
+void Renderer::playSFX(const SFX_Type& type)
+{
+
+     auto vol = Mix_Volume(-1, -1);
+
+    switch (type)
+    {
+        case SFX_Type::Launch:
+            Mix_PlayChannel( -1, launch_sfx_, 0 );
+            break;
+        case SFX_Type::Hit:
+            Mix_Volume(-1, vol / 10);
+            Mix_PlayChannel( -1, hit_sfx_, 0 );
+            Mix_Volume(-1, vol);
+            break;
+        case SFX_Type::GameOver:
+            Mix_Volume(-1, vol / 10);
+            Mix_PlayChannel( -1, game_over_sfx_, 0 );
+            Mix_Volume(-1, vol);
+            break;
+        
+        default:
+            break;
+    }
+    
+}
