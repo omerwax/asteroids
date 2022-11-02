@@ -4,10 +4,50 @@
 using namespace asteroids;
 
 
-Spaceship::Spaceship()
+Spaceship::Spaceship(const int& pose_x, const int& pose_y)
 {
     max_speed_ = 6; accel_ = 3;
     shot_time_ = std::chrono::system_clock::now();
+
+    pose_.x = pose_x; pose_.y = pose_y;
+
+    // Define spaceship shape by a group of rectangles
+    DrawableRect rect;
+    
+    // Left launcher
+    rect.rect = {40, 0, 20, 40};
+    rect.color = {255, 0, 0, 0};
+    rects_.emplace_back(rect);
+
+    // Right launcher
+    rect.rect = {100, 0, 20, 40};
+    rect.color = {255, 0, 0, 0};
+    rects_.emplace_back(rect);
+
+    // Launchers base
+    rect.rect = {20, 40, 120, 20};
+    rect.color = {255, 255, 0, 0};
+    rects_.emplace_back(rect);
+
+    // Body
+    rect.rect = {0, 60, 160, 40};
+    rect.color = {255, 127, 0, 0};
+    rects_.emplace_back(rect);
+
+    // Left engine
+    rect.rect = {20, 100, 40, 10};
+    rect.color = {255, 0, 0, 0};
+    rects_.emplace_back(rect);
+
+    // Right engine
+    rect.rect = {100, 100, 40, 10};
+    rect.color = {255, 0, 0, 0};
+    rects_.emplace_back(rect);
+
+
+    // set initial pose
+    width_ = 160;
+    height_= 110;
 }
 
 
@@ -22,30 +62,19 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile, const Launcher& launche
         return;
     }
 
-    missile = std::make_shared<Missile>();
-
-    DrawableRect rect;
+    
     // get the spaceship pose set missile pose to the spaceship pose
     Pose pose = this->pose_;
 
     // calculate the x pose accroding to the launcher side
-    int pose_x = 0;
     if (launcher == Launcher::Left){
-        pose_x = 45;
+        pose.x += 45;
     }
     else{
-        pose_x = 105;
+        pose.x += 105;
     }    
     
-    // define the missile rectangle
-    rect.rect = {pose_x, -20, 10, 20};
-    rect.color = {128, 128, 0, 0}; 
-    missile->setWidth(10);
-    missile->setHeight(20);
-    missile->setPose(std::move(pose));
-
-    missile->addRect(std::move(rect));
-    missile->setSpeed(Speed(0, -5));
+    missile = std::make_shared<Missile>(pose.x, pose.y);
 
     if (launcher == Launcher::Right){
         shot_time_ = std::chrono::system_clock::now();

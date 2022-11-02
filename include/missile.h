@@ -12,13 +12,14 @@ namespace asteroids
     
     class Missile : public MovingEntity {
     public:
-        Missile() : alive_(true){ max_speed_ = 10; }
+        Missile(int pose_x, int pose_y);
+        Missile() = delete;
         void updatePose() override;
         void explode() { alive_ = false; }
         bool isAlive() { return alive_; }
     private:
         bool alive_;
-        
+                
     };
 
 }

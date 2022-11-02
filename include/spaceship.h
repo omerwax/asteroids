@@ -20,7 +20,7 @@ namespace asteroids
     
     class Spaceship : public MovingEntity {
     public:
-        Spaceship(); 
+        Spaceship(const int& pose_x, const int& pose_y); 
         void accelRight(){ speed_.x = std::min(speed_.x + accel_, max_speed_); }
         void accelLeft(){ speed_.x = std::max(speed_.x - accel_,  - 1 * max_speed_); }
         void accelDown(){ speed_.y = std::min(speed_.y+ accel_, max_speed_); }

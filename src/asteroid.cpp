@@ -3,6 +3,30 @@
 
 using namespace asteroids;
 
+
+Asteroid::Asteroid(const int& pose_x, const int& pose_y) : alive_(true)
+{ 
+    max_speed_ = 10; accel_ = 1;
+    width_ = 50, height_ = 50;
+    pose_.x = pose_x; pose_.y = pose_y;
+
+    DrawableRect rect;
+    rect.color = {128, 0, 128, 0};
+    
+    rect.rect = {20,0,10,5};
+    rects_.emplace_back(rect);
+    rect.rect = {10,5,30,10};
+    rects_.emplace_back(rect);
+    rect.rect = {0,15,50,20};
+    rects_.emplace_back(rect);
+    rect.rect = {10,35,30,10};
+    rects_.emplace_back(rect);
+    rect.rect = {20,45,10,5};
+    rects_.emplace_back(rect);
+
+    
+}
+
 void Asteroid::updatePose()
 {
     // Calculate the new pose

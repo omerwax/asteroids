@@ -541,73 +541,25 @@ void Game::processEvents(){
 
 void Game::createSpaceship()
 {
-    // Define spaceship shape by a group of rectangles
-    DrawableRect rect;
-    spaceship_ = std::make_shared<Spaceship>();
     
-    // Left launcher
-    rect.rect = {40, 0, 20, 40};
-    rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // Right launcher
-    rect.rect = {100, 0, 20, 40};
-    rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // Launchers base
-    rect.rect = {20, 40, 120, 20};
-    rect.color = {255, 255, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // Body
-    rect.rect = {0, 60, 160, 40};
-    rect.color = {255, 127, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // Left engine
-    rect.rect = {20, 100, 40, 10};
-    rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-    // Right engine
-    rect.rect = {100, 100, 40, 10};
-    rect.color = {255, 0, 0, 0};
-    spaceship_->addRect(std::move(rect));
-
-
-    // set initial pose
-    spaceship_->setWidth(160);
-    spaceship_->setHeight(110);
-
+    spaceship_ = std::make_shared<Spaceship>(0, 0);
+    
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
 
 }
 // Cretae a new astroid on a random place on the top row of the screen, with a random speed
 void Game::createAstroid()
 {
-    auto asteroid = std::make_shared<Asteroid>();
-    DrawableRect rect;
-    rect.color = {128, 0, 128, 0};
-    
-    rect.rect = {20,0,10,5};
-    asteroid->addRect(std::move(rect));
-    rect.rect = {10,5,30,10};
-    asteroid->addRect(std::move(rect));
-    rect.rect = {0,15,50,20};
-    asteroid->addRect(std::move(rect));
-    rect.rect = {10,35,30,10};
-    asteroid->addRect(std::move(rect));
-    rect.rect = {20,45,10,5};
-    asteroid->addRect(std::move(rect));
+    // Create an asteroid in default position
+    auto asteroid = std::make_shared<Asteroid>(0, 0);
 
-    asteroid->setHeight(50);
-    asteroid->setWidth(50);
-
+    // Init the uniform distribution
     std::uniform_int_distribution<int> dist(asteroid->getWidth(), WINDOW_WIDTH - asteroid->getWidth());
            
+    // Set a random pose;
     asteroid->setPose(Pose(dist(*mt_),0));
-
+    
+    // Set a random speed 
     asteroid->setSpeed(Speed(dist(*mt_) % max_speed_, 2 + level_));
     
     asteroids_.emplace_back(asteroid);
