@@ -5,16 +5,17 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
-#include "moving_entity.h"
+#include "rects_entity.h"
+
 
 namespace asteroids
 {
     
-    class Missile : public MovingEntity {
+    class Missile : public RectsEntity {
     public:
-        Missile(int pose_x, int pose_y);
+        Missile(Pose& pose);
         Missile() = delete;
-        void updatePose() override;
+        void update() override;
         void explode() { alive_ = false; }
         bool isAlive() { return alive_; }
     private:

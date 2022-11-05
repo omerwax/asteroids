@@ -4,50 +4,51 @@
 using namespace asteroids;
 
 
-Spaceship::Spaceship(const int& pose_x, const int& pose_y)
+Spaceship::Spaceship(SDL_Renderer* renderer)
 {
     max_speed_ = 6; accel_ = 3;
     shot_time_ = std::chrono::system_clock::now();
 
-    pose_.x = pose_x; pose_.y = pose_y;
+    pose_ = Pose();
+    speed_= Speed();
 
-    // Define spaceship shape by a group of rectangles
-    DrawableRect rect;
+    // Define spaceship collisions
+    SDL_Rect rect;
+
+    std::vector<SDL_Rect> collisions;
     
     // Left launcher
-    rect.rect = {40, 0, 20, 40};
-    rect.color = {255, 0, 0, 0};
-    rects_.emplace_back(rect);
+    rect = {4, 65, 8, 45};
+    collisions.emplace_back(rect);
 
     // Right launcher
-    rect.rect = {100, 0, 20, 40};
-    rect.color = {255, 0, 0, 0};
-    rects_.emplace_back(rect);
+    rect = {130, 65, 8, 45};
+    collisions.emplace_back(rect);
 
-    // Launchers base
-    rect.rect = {20, 40, 120, 20};
-    rect.color = {255, 255, 0, 0};
-    rects_.emplace_back(rect);
+    // Cockpit base
+    rect = {70, 50, 16, 60};
+    collisions.emplace_back(rect);
+
+    // Cockpit top
+    rect = {72, 0, 8, 50};
+    collisions.emplace_back(rect);
 
     // Body
-    rect.rect = {0, 60, 160, 40};
-    rect.color = {255, 127, 0, 0};
-    rects_.emplace_back(rect);
+    rect = {4, 110, 140, 40};
+    collisions.emplace_back(rect);
 
     // Left engine
-    rect.rect = {20, 100, 40, 10};
-    rect.color = {255, 0, 0, 0};
-    rects_.emplace_back(rect);
+    rect = {60, 150, 8, 15};
+    collisions.emplace_back(rect);
 
     // Right engine
-    rect.rect = {100, 100, 40, 10};
-    rect.color = {255, 0, 0, 0};
-    rects_.emplace_back(rect);
+    rect = {95, 150, 8, 15};
+    collisions.emplace_back(rect);
 
+    loadRenderer(renderer);
 
-    // set initial pose
-    width_ = 160;
-    height_= 110;
+    loadTexture("../img/spaceship.png", collisions);
+
 }
 
 
@@ -66,15 +67,17 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile, const Launcher& launche
     // get the spaceship pose set missile pose to the spaceship pose
     Pose pose = this->pose_;
 
+    
+    pose.y += 65;
     // calculate the x pose accroding to the launcher side
     if (launcher == Launcher::Left){
-        pose.x += 45;
+        pose.x += 8; //45;
     }
     else{
-        pose.x += 105;
+        pose.x += 134;//105;
     }    
     
-    missile = std::make_shared<Missile>(pose.x, pose.y);
+    missile = std::make_shared<Missile>(pose);
 
     if (launcher == Launcher::Right){
         shot_time_ = std::chrono::system_clock::now();
@@ -84,7 +87,7 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile, const Launcher& launche
 
 }
 
-void Spaceship::updatePose()
+void Spaceship::update()
 {
     
     pose_.x += speed_.x;
@@ -92,7 +95,7 @@ void Spaceship::updatePose()
     pose_.x = std::max(pose_.x, 0);
 
     pose_.y += speed_.y;
-    pose_.y = std::min(pose_.y, WINDOW_HEIGHT - height_);
+    pose_.y = std::min(pose_.y, WINDOW_HEIGHT - height_ + 30);
     pose_.y = std::max(pose_.y, 0);
 
 }

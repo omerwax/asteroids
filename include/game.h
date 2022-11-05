@@ -6,10 +6,11 @@
 #include <random>
 
 #include "renderer.h"
-#include "drawable_entity.h"
+#include "game_entity.h"
 #include "spaceship.h"
 #include "asteroid.h"
 #include "game_event.h"
+#include "texts_entity.h"
 
 
 #define WINDOW_WIDTH 1280
@@ -58,7 +59,7 @@ namespace asteroids{
         std::shared_ptr<Spaceship> spaceship_;
         std::vector<std::shared_ptr<Missile>> missiles_;
         std::vector<std::shared_ptr<Asteroid>> asteroids_;
-        std::shared_ptr<DrawableEntity> texts_;
+        std::shared_ptr<TextsEntity> texts_;
 
         std::vector<GameEvent> events_;
 
