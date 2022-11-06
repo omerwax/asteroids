@@ -42,6 +42,7 @@ namespace asteroids{
         void update();
         void createSpaceship();
         void createAstroid();
+        void createBackground();
         bool checkCollisions();
         void checkHits();
         void reset();
@@ -59,6 +60,7 @@ namespace asteroids{
         std::shared_ptr<Spaceship> spaceship_;
         std::vector<std::shared_ptr<Missile>> missiles_;
         std::vector<std::shared_ptr<Asteroid>> asteroids_;
+        std::shared_ptr<TextureEntity> background_;
         std::shared_ptr<TextsEntity> texts_;
 
         std::vector<GameEvent> events_;

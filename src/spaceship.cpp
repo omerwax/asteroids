@@ -45,7 +45,7 @@ Spaceship::Spaceship(SDL_Renderer* renderer)
     rect = {95, 150, 8, 15};
     collisions.emplace_back(rect);
 
-    loadRenderer(renderer);
+    renderer_ = renderer;
 
     loadTexture("../img/spaceship.png", collisions);
 
@@ -71,10 +71,10 @@ void Spaceship::shoot(std::shared_ptr<Missile> &missile, const Launcher& launche
     pose.y += 65;
     // calculate the x pose accroding to the launcher side
     if (launcher == Launcher::Left){
-        pose.x += 8; //45;
+        pose.x += 8;
     }
     else{
-        pose.x += 134;//105;
+        pose.x += 134;
     }    
     
     missile = std::make_shared<Missile>(pose);
@@ -95,7 +95,7 @@ void Spaceship::update()
     pose_.x = std::max(pose_.x, 0);
 
     pose_.y += speed_.y;
-    pose_.y = std::min(pose_.y, WINDOW_HEIGHT - height_ + 30);
+    pose_.y = std::min(pose_.y, WINDOW_HEIGHT - height_);
     pose_.y = std::max(pose_.y, 0);
 
 }

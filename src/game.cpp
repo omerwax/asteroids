@@ -54,6 +54,8 @@ bool Game::init()
 
     data_file.close();
 
+    createBackground();
+
     createSpaceship();
     
     state_ = GameState::Idle;
@@ -65,6 +67,9 @@ void Game::render()
 {
     // clear the screen
     renderer_.clear();
+
+    // render the background;
+    renderer_.render(background_);
     
     if (state_ == GameState::Running || state_ == GameState::Paused || state_ == GameState::GameOver){
         // render the spaceship
@@ -566,6 +571,14 @@ void Game::createAstroid()
     
     asteroids_.emplace_back(asteroid);
 
+}
+void Game::createBackground()
+{
+    background_ = std::make_shared<TextureEntity>();
+    background_->loadRenderer(renderer_.getRenderer());
+    std::vector<SDL_Rect> collisions;
+    background_->loadTexture("../img/background.png", collisions);
+    background_->setPose(Pose(0, 0));
 }
 
 // check Spaceship collision with asteroids
