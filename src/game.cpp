@@ -557,11 +557,12 @@ void Game::createSpaceship()
 void Game::createAstroid()
 {
     // Create an asteroid in default position
-    Pose pose;
-    auto asteroid = std::make_shared<Asteroid>(pose);
+    
+    auto asteroid = std::make_shared<Asteroid>(renderer_.getRenderer());
 
+    auto size = asteroid->getSpriteSheetSize();
     // Init the uniform distribution
-    std::uniform_int_distribution<int> dist(asteroid->getWidth(), WINDOW_WIDTH - asteroid->getWidth());
+    std::uniform_int_distribution<int> dist(asteroid->getWidth() / size, WINDOW_WIDTH - asteroid->getWidth() / size);
            
     // Set a random pose;
     asteroid->setPose(Pose(dist(*mt_),0));
@@ -576,8 +577,7 @@ void Game::createBackground()
 {
     background_ = std::make_shared<TextureEntity>();
     background_->loadRenderer(renderer_.getRenderer());
-    std::vector<SDL_Rect> collisions;
-    background_->loadTexture("../img/background.png", collisions);
+    background_->loadTexture("../img/background.png");
     background_->setPose(Pose(0, 0));
 }
 

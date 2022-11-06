@@ -13,6 +13,7 @@
 #include "texture_entity.h"
 #include "rects_entity.h"
 #include "texts_entity.h"
+#include "animated_entity.h"
 #include "spaceship.h"
 
 
@@ -31,6 +32,7 @@ namespace asteroids
         void render(std::shared_ptr<TextureEntity> entity);
         void render(std::shared_ptr<RectsEntity> entity);
         void render(std::shared_ptr<TextsEntity> texts);
+        void render(std::shared_ptr<AnimatedEntity> entity);
 
         void playSFX(const SFX_Type& type);
         void clear();

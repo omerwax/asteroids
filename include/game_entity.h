@@ -29,7 +29,7 @@ namespace asteroids
         Pose getPose(){ return pose_;}
         void setPose(Pose &&pose){pose_ = pose;}
         int getWidth() { return width_; }
-        int getHeight() { return width_; }
+        int getHeight() { return height_; }
         void setSpeed(Speed &&s) { speed_ = s; }
         Speed getSpeed(){ return speed_; }
         bool intersects(std::shared_ptr< GameEntity> entity);

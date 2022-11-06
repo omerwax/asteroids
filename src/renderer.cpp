@@ -92,7 +92,6 @@ Renderer::~Renderer()
     
 }
 
-
 void Renderer::render(std::shared_ptr<TextureEntity> entity)
 {
     if (!entity) return;
@@ -111,6 +110,38 @@ void Renderer::render(std::shared_ptr<TextureEntity> entity)
         return;
     }
 }
+void Renderer::render(std::shared_ptr<AnimatedEntity> entity)
+{
+    if (!entity) return;
+        
+    auto pose = entity->getPose();
+
+    auto sprite_sheet = entity->getSpriteSheet();
+    auto index = entity->getAnimationIndex();
+    auto width = entity->getWidth();
+    auto height = entity->getHeight();
+    auto size = entity->getSpriteSheetSize();
+        
+    
+    SDL_Rect source;
+
+    source.x = width * (index % size);
+    source.y = height * (index / size);
+    source.w = width;
+    source.h = width;
+
+
+    if (sprite_sheet !=NULL){
+        SDL_Rect dest;
+        dest.x = pose.x;
+        dest.y = pose.y;
+        dest.w = source.w;
+        dest.h = source.h;
+        SDL_RenderCopy(renderer_, sprite_sheet, &source, &dest);
+        return;
+    }
+}
+
 void Renderer::render(std::shared_ptr<RectsEntity> entity)
 {
     if (!entity) return;

@@ -15,39 +15,37 @@ Spaceship::Spaceship(SDL_Renderer* renderer)
     // Define spaceship collisions
     SDL_Rect rect;
 
-    std::vector<SDL_Rect> collisions;
-    
     // Left launcher
     rect = {4, 65, 8, 45};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Right launcher
     rect = {130, 65, 8, 45};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Cockpit base
     rect = {70, 50, 16, 60};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Cockpit top
     rect = {72, 0, 8, 50};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Body
     rect = {4, 110, 140, 40};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Left engine
     rect = {60, 150, 8, 15};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     // Right engine
     rect = {95, 150, 8, 15};
-    collisions.emplace_back(rect);
+    collisions_.emplace_back(rect);
 
     renderer_ = renderer;
 
-    loadTexture("../img/spaceship.png", collisions);
+    loadTexture("../img/spaceship.png");
 
 }
 

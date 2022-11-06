@@ -5,14 +5,14 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
-#include "rects_entity.h"
+#include "animated_entity.h"
 
 namespace asteroids
 {
     
-    class Asteroid : public RectsEntity {
+    class Asteroid : public AnimatedEntity {
     public:
-        Asteroid(Pose& pose);
+        Asteroid(SDL_Renderer * renderer);
         Asteroid() = delete;
         void update() override;
         void explode() { alive_ = false; }
