@@ -5,7 +5,7 @@
 
 using namespace asteroids;
 
-bool TextureEntity::loadTexture(const std::string& image_path, const std::vector<SDL_Rect>& collisions){
+bool TextureEntity::loadTexture(const std::string& image_path){
     
     if( renderer_ == NULL ){
 		std::cout << "loadTexture(): Renderer is not set: " << image_path<< std::endl;
@@ -40,10 +40,6 @@ bool TextureEntity::loadTexture(const std::string& image_path, const std::vector
 		}
 		
 	}
-
-	collisions_ = collisions;
-
-	
 
 	return true;
 }

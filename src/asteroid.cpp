@@ -1,39 +1,37 @@
+#include <SDL2/SDL.h>
 #include "asteroid.h"
+
 #include "game.h"
 
 using namespace asteroids;
 
 
-Asteroid::Asteroid(Pose& pose) : alive_(true)
+Asteroid::Asteroid(SDL_Renderer * renderer) : alive_(true)
 { 
     max_speed_ = 10; accel_ = 1;
     width_ = 50, height_ = 50;
-    pose_.x = pose.x; pose_.y = pose.y;
+    pose_ = Pose(0,0);
 
-    DrawableRect rect;
-    rect.color = {128, 0, 128, 0};
-    
-    rect.rect = {20,0,10,5};
-    rects_.emplace_back(rect);
-    collisions_.emplace_back(rect.rect);
-    rect.rect = {10,5,30,10};
-    rects_.emplace_back(rect);
-    collisions_.emplace_back(rect.rect);
-    rect.rect = {0,15,50,20};
-    rects_.emplace_back(rect);
-    collisions_.emplace_back(rect.rect);
-    rect.rect = {10,35,30,10};
-    rects_.emplace_back(rect);
-    collisions_.emplace_back(rect.rect);
-    rect.rect = {20,45,10,5};
-    rects_.emplace_back(rect);
-    collisions_.emplace_back(rect.rect);
+    SDL_Rect rect{0, 0, 90, 90};
+    collisions_.emplace_back(rect);
 
-    
+    renderer_ = renderer;
+
+    loadSpriteSheet("../img/asteroid_sprite.png", 8);
+
+    last_ = std::chrono::system_clock::now();
+        
 }
 
 void Asteroid::update()
 {
+    
+    auto now = std::chrono::system_clock::now();
+    auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_);
+    if (dt.count() >= this->animation_interval_){
+        animation_index_ = (++animation_index_) % (size_*size_);
+        last_ = now;
+    }
     // Calculate the new pose
     pose_.x += speed_.x;
     // Trim it at the edges
