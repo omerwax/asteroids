@@ -10,7 +10,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
-#include "drawable_entity.h"
+#include "texture_entity.h"
+#include "rects_entity.h"
+#include "texts_entity.h"
 #include "spaceship.h"
 
 
@@ -26,12 +28,15 @@ namespace asteroids
         Renderer() = delete;
         ~Renderer();
         bool init();
-        void render(std::vector<std::shared_ptr<DrawableEntity>> &entities);
-        void render(std::shared_ptr<DrawableEntity> entity);
+        void render(std::shared_ptr<TextureEntity> entity);
+        void render(std::shared_ptr<RectsEntity> entity);
+        void render(std::shared_ptr<TextsEntity> texts);
+
         void playSFX(const SFX_Type& type);
         void clear();
         void present();
         SDL_Texture * createTextureFromText(std::string, SDL_Color);
+        SDL_Renderer * getRenderer(){ return renderer_; }
     private:
         bool initiated_;
         int width_;

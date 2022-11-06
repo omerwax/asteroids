@@ -23,7 +23,7 @@ bool Game::init()
     // Initialize the random engine
     mt_ = std::make_shared<std::mt19937>(std::chrono::system_clock::now().time_since_epoch().count());
     
-    texts_ = std::make_shared<DrawableEntity>();
+    texts_ = std::make_shared<TextsEntity>();
     
     // Open the data file 
     auto data_file = std::fstream("../data/data");
@@ -54,6 +54,8 @@ bool Game::init()
 
     data_file.close();
 
+    createBackground();
+
     createSpaceship();
     
     state_ = GameState::Idle;
@@ -65,6 +67,9 @@ void Game::render()
 {
     // clear the screen
     renderer_.clear();
+
+    // render the background;
+    renderer_.render(background_);
     
     if (state_ == GameState::Running || state_ == GameState::Paused || state_ == GameState::GameOver){
         // render the spaceship
@@ -176,7 +181,7 @@ void Game::updateGameRunning()
     
     
     // update spaceship pose
-    spaceship_->updatePose();
+    spaceship_->update();
     
     // update level according to score
     level_  = score_ / 1000;;
@@ -184,7 +189,7 @@ void Game::updateGameRunning()
     // Update all missile, delete ones that are out of scope(screen)
     auto it = missiles_.begin();
     while ( it != missiles_.end()){
-        (*it)->updatePose();
+        (*it)->update();
         // check if missile is out of screen
         if ((*it)->isAlive() == false){
             // remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
@@ -208,7 +213,7 @@ void Game::updateGameRunning()
     // Update all Steroids, delete ones that are out of scope (Blasted)
     auto it_s = asteroids_.begin();
     while ( it_s != asteroids_.end()){
-        (*it_s)->updatePose();
+        (*it_s)->update();
         // check if missile is out of screen
         if ((*it_s)->isAlive() == false){
             // remove it from the missiles_ vector (also deallocate it as it is no longer owned by anyone)
@@ -542,8 +547,9 @@ void Game::processEvents(){
 void Game::createSpaceship()
 {
     
-    spaceship_ = std::make_shared<Spaceship>(0, 0);
     
+    spaceship_ = std::make_shared<Spaceship>(renderer_.getRenderer());
+      
     spaceship_->setPose(Pose(WINDOW_WIDTH / 2, WINDOW_HEIGHT - spaceship_->getHeight() / 2));
 
 }
@@ -551,7 +557,8 @@ void Game::createSpaceship()
 void Game::createAstroid()
 {
     // Create an asteroid in default position
-    auto asteroid = std::make_shared<Asteroid>(0, 0);
+    Pose pose;
+    auto asteroid = std::make_shared<Asteroid>(pose);
 
     // Init the uniform distribution
     std::uniform_int_distribution<int> dist(asteroid->getWidth(), WINDOW_WIDTH - asteroid->getWidth());
@@ -564,6 +571,14 @@ void Game::createAstroid()
     
     asteroids_.emplace_back(asteroid);
 
+}
+void Game::createBackground()
+{
+    background_ = std::make_shared<TextureEntity>();
+    background_->loadRenderer(renderer_.getRenderer());
+    std::vector<SDL_Rect> collisions;
+    background_->loadTexture("../img/background.png", collisions);
+    background_->setPose(Pose(0, 0));
 }
 
 // check Spaceship collision with asteroids

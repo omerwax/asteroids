@@ -92,38 +92,29 @@ Renderer::~Renderer()
     
 }
 
-void Renderer::render(std::vector<std::shared_ptr<DrawableEntity>> &entities)
-{
-    
-    // Reneder all drawable entities
-    for (auto &entity:entities){
-        Pose pose = entity->getPose();
-        // Render the rects
-        for (auto &rect:entity->getRects()){
-            SDL_SetRenderDrawColor(renderer_, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
-            rect.rect.x += pose.x;
-            rect.rect.y += pose.y;
-            SDL_RenderFillRect(renderer_, &rect.rect);
-            rect.rect.x -= pose.x;
-            rect.rect.y -= pose.y;
-        }
-        // Render the texts
-        for (auto &text:entity->getTexts()){
-            auto texture = createTextureFromText(text.text, text.color);
-            SDL_RenderCopy(renderer_, texture, NULL, &text.rect);
-            SDL_DestroyTexture(texture);
-                    
-        }
-    }
-  
-    return ;
 
-}
-
-void Renderer::render(std::shared_ptr<DrawableEntity> entity)
+void Renderer::render(std::shared_ptr<TextureEntity> entity)
 {
     if (!entity) return;
-    
+        
+    auto pose = entity->getPose();
+
+    auto texture = entity->getTexture();
+        
+    if (texture !=NULL){
+        SDL_Rect dest;
+        dest.x = pose.x;
+        dest.y = pose.y;
+        dest.w = entity->getWidth();
+        dest.h = entity->getHeight();
+        SDL_RenderCopy(renderer_, texture, NULL, &dest);
+        return;
+    }
+}
+void Renderer::render(std::shared_ptr<RectsEntity> entity)
+{
+    if (!entity) return;
+        
     auto  pose = entity->getPose();
 
     for (auto &rect:entity->getRects()){
@@ -134,6 +125,13 @@ void Renderer::render(std::shared_ptr<DrawableEntity> entity)
         rect.rect.x -= pose.x;
         rect.rect.y -= pose.y;
     }
+    
+    return ;
+}
+void Renderer::render(std::shared_ptr<TextsEntity> entity)
+{
+    if (!entity) return;
+        
     // Render the texts
     for (auto &text:entity->getTexts()){
         if (!text.text.empty()){
