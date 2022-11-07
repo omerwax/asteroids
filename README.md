@@ -41,7 +41,9 @@ make
 
 ## Directory and Files structure
 - src/ - a folder that contains all the required source code files
-- include - afolder that contains all the required header files
+- include/ - a folder that contains all the required header files
+- img/ - a folder that contains all the required image files
+- sfx/ - a folder that contains the sound effects
 - fonts/ - folder that contains TrueType font files required for text rendering
 - cmake/ - a folder that contains cmake modules for finding SDL2 and SDL2_ttf libs automatically, 
            taken from [here](https://github.com/toivjon/sdl2-space-invaders)
@@ -51,11 +53,15 @@ make
 ## Classes structure
 - Game  - The Main class, responsible for managing the game, and running the main game loop;
 - Renderer - A wraper class for the using SDL2 in a simpler way, renderer takes a vector of Drawable Objects and render them to the screen
-- DrawableEntity - A class of renderables objects, with shape and text. The shpes are defined by a collection of rectangles.
-- MovingEntity - Inherites from the DrawableEntity class, adds movment capabilities
-- Spacship - Inherits from the MovingEntity class, add movement control and shooting 
-- Missile - Inherits from the MovingEntity class
-- Asteroid - Inherited from the MovingEntity class
+- GameEntity - A class game objects, defined by position, speed and collision.
+- RectsEntity - Renderable entity that inherits from GameEntity and defined by a collection of rectangles
+- TextureEntity - Renderable entity that inherits from GameEntity and defined by a by a texture that is loaded from an image
+- AnimatedEntity - Renderable animated entity that inherits from GameEntity and defined by a sprite-sheet
+- TextEntity - A renderable entity that is defined by a collection of renderable text objects
+- Spacship - Inherits from the Texture Entity class, add movement control and shooting 
+- Missile - Inherits from the RectsEntity class
+- Asteroid - Inherited from the AnimatedEntity class
+- GameEvent - Defines the game events
 
 ## Game Behavior
 - The game starts at the start screen, prompting the player to enter his name and start playing the game
@@ -69,6 +75,9 @@ make
 - When the game is over, it can be restarted easily by pressing enter and starting all over again.
 - High score is managed in a data file, data os obfuscatd in base64,
         base64 code is taken from [here](https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
+        
+## Game video
+https://user-images.githubusercontent.com/23061503/200281300-b21b959f-a056-492b-bb05-254369220fc8.mp4
 
 # Project Rubric
 ## Readme
@@ -90,15 +99,4 @@ make
  - The project uses move semantics to move data, instead of copying it, where possible. - [here](https://github.com/omerwax/asteroids/blob/8ba5cb90a970382fa36c02913d1288abfb8b14be/src/drawable_entity.h#L47) and [here](https://github.com/omerwax/asteroids/blob/8ba5cb90a970382fa36c02913d1288abfb8b14be/src/game.cpp#L28)
  - The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate. [here](https://github.com/omerwax/asteroids/blob/8ba5cb90a970382fa36c02913d1288abfb8b14be/src/game.cpp#L20)
  - The project uses destructors appropriately - [here](https://github.com/omerwax/asteroids/blob/8ba5cb90a970382fa36c02913d1288abfb8b14be/src/renderer.cpp#L50)
-
-
-
-
-
-
-
-
-
-
-
 
