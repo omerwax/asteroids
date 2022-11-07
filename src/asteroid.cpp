@@ -12,7 +12,7 @@ Asteroid::Asteroid(SDL_Renderer * renderer) : alive_(true)
     width_ = 50, height_ = 50;
     pose_ = Pose(0,0);
 
-    SDL_Rect rect{0, 0, 90, 90};
+    SDL_Rect rect{24, 24, 80, 80};
     collisions_.emplace_back(rect);
 
     renderer_ = renderer;
