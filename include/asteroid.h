@@ -7,6 +7,8 @@
 
 #include "animated_entity.h"
 
+#define SPRITE_SHEET_MATRIX_SIZE 8
+
 namespace asteroids
 {
     

@@ -17,21 +17,17 @@ Asteroid::Asteroid(SDL_Renderer * renderer) : alive_(true)
 
     renderer_ = renderer;
 
-    loadSpriteSheet("../img/asteroid_sprite.png", 8);
+    loadSpriteSheet("../img/asteroid_sprite.png", SPRITE_SHEET_MATRIX_SIZE);
 
-    last_ = std::chrono::system_clock::now();
-        
+    this->animation_fps_ = 15;
+       
 }
 
 void Asteroid::update()
 {
     
-    auto now = std::chrono::system_clock::now();
-    auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_);
-    if (dt.count() >= this->animation_interval_){
-        animation_index_ = (++animation_index_) % (size_*size_);
-        last_ = now;
-    }
+    updateAnimationIndex();
+
     // Calculate the new pose
     pose_.x += speed_.x;
     // Trim it at the edges

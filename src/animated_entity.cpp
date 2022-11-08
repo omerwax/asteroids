@@ -54,3 +54,19 @@ AnimatedEntity::~AnimatedEntity()
     SDL_DestroyTexture(spritesheet_);
 	spritesheet_ = NULL;
 }
+
+
+void AnimatedEntity::updateAnimationIndex(){
+	auto now = std::chrono::system_clock::now();
+    auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_);
+    if (dt.count() >= 1000 / animation_fps_){
+        animation_index_ = (++animation_index_) % (size_*size_);
+        last_ = now;
+    }
+
+}
+
+AnimatedEntity::AnimatedEntity() : spritesheet_(NULL), animation_index_(0), size_(1)
+{
+   last_ = std::chrono::system_clock::now();
+}

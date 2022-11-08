@@ -14,7 +14,7 @@ namespace asteroids
  
     class AnimatedEntity : public GameEntity{
     public:
-        AnimatedEntity() : spritesheet_(NULL), animation_index_(0){}
+        AnimatedEntity();
         ~AnimatedEntity();
         void clear();
         void update(){};
@@ -24,18 +24,19 @@ namespace asteroids
    
     protected:
         bool loadSpriteSheet(const std::string& image_path, const int& size);
+        void updateAnimationIndex();
         SDL_Renderer*  renderer_;
-        int animation_rate_= 30;
-        int animation_interval_ = 1000 / animation_rate_;
-        std::chrono::time_point<std::chrono::system_clock> last_;
-        int size_;                
-
-        int animation_index_;
+        int animation_fps_ = 15;                
+       
          
     private:
         SDL_Texture * spritesheet_;
         int spritesheet_width;
         int spritesheet_height;
+        std::chrono::time_point<std::chrono::system_clock> last_;
+        int animation_index_;
+        int size_;
+
     };
 
 }
