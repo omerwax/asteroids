@@ -248,16 +248,15 @@ void Renderer::playSFX(const SFX_Type& type)
 
 void Renderer::playTheme()
 {
-    auto playing = Mix_PlayingMusic();
-    if (!playing){
+    if (!Mix_PlayingMusic()){
         Mix_PlayMusic( theme_, -1 );
-    } 
+    }
+    else if(Mix_PausedMusic()){
+        Mix_ResumeMusic();
+    }
 }
 
 void Renderer::pauseTheme()
 {
-    auto playing = Mix_PlayingMusic();
-    if (playing != 0){
-        Mix_PauseMusic();
-    }
+    Mix_PauseMusic();
 }

@@ -37,6 +37,7 @@ namespace asteroids
         void playSFX(const SFX_Type& type);
         void playTheme();
         void pauseTheme();
+        void resumeTheme();
         void clear();
         void present();
         SDL_Texture * createTextureFromText(std::string, SDL_Color);

@@ -30,7 +30,8 @@ namespace asteroids{
                         width_(WINDOW_WIDTH), height_(WINDOW_HEIGHT), 
                         state_(GameState::Init), score_(0), 
                         asteroids_interval_(INITIAL_INTERVAL),
-                        level_(0), player_name_("PLAYER1"){};
+                        level_(0), player_name_("PLAYER1"), 
+                        shots_(0), hits_(0){};
         bool init();
         void run();
         
@@ -76,6 +77,8 @@ namespace asteroids{
         const int height_;
         const int MS_PER_FRAME_ = 1000 / fps_;
         const int max_speed_ = 10;
+        int shots_;
+        int hits_;
         int high_score_;
         std::string high_score_player_;
         Renderer renderer_{width_, height_};

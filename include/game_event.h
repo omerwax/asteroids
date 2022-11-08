@@ -7,7 +7,7 @@ namespace asteroids{
 
     enum class EventType{Name, Start, Pause, Resume, Shoot, AccelRight, 
                         AccelLeft, AccelUp, AccelDown, End, Restart, KeyTyped, 
-                        Hit, None};
+                        Hit, Collision, None};
     
     class GameEvent{
     public:

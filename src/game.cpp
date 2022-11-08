@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <experimental/filesystem>
@@ -57,9 +58,7 @@ bool Game::init()
     createBackground();
 
     createSpaceship();
-
-    renderer_.playTheme();
-    
+   
     state_ = GameState::Idle;
 
     return true;
@@ -226,10 +225,8 @@ void Game::updateGameRunning()
 
     // Check if the spaceship collided with an asteroid
     if (checkCollisions()){
-        std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
-        final_score_ = score_;
-        prev_state_ = state_;
-        state_ = GameState::GameOver;
+        events_.emplace_back(GameEvent(EventType::Collision));
+        
     }
 
     // Check for missile hits
@@ -298,7 +295,7 @@ void Game::createTexts(const int &countdown)
         text << "HIGH SCORE: " << high_score_;//
         message_text.text = text.str();
         rect_size_x = (int)message_text.text.length()*24;
-        message_text.rect = {0, 120, rect_size_x, 60};
+        message_text.rect = {0, 200, rect_size_x, 60};
 
         texts_->addText(std::move(message_text));
 
@@ -309,11 +306,30 @@ void Game::createTexts(const int &countdown)
         text << high_score_player_;//
         message_text.text = text.str();
         rect_size_x = (int)message_text.text.length()*24;
-        message_text.rect = {0, 160, rect_size_x, 60};
+        message_text.rect = {0, 240, rect_size_x, 60};
 
         texts_->addText(std::move(message_text));
     }
-    
+
+    // Create the shots entity
+    text.str("");
+    text.clear();
+    text << "SHOTS: " << shots_;
+    message_text.text = text.str();
+    rect_size_x = (int)message_text.text.length()*24;
+    message_text.rect = {0, 120, rect_size_x, 60};
+    texts_->addText(std::move(message_text));
+
+    // Create the shots entity
+    text.str("");
+    text.clear();
+    text << "HITS: " << hits_;
+    message_text.text = text.str();
+    rect_size_x = (int)message_text.text.length()*24;
+    message_text.rect = {0, 160, rect_size_x, 60};
+    texts_->addText(std::move(message_text));
+
+        
     // Create the FPS entity
     text.str("");
     text.clear();
@@ -352,8 +368,19 @@ void Game::updateGameOver()
             
     texts_->addText(std::move(message_text));
 
+    // Create the acuuracy entity
+    text.str("");
+    text.clear();
+    text << "ACCURACY: " << std::fixed << std::setprecision(2) << (shots_ > 0 ? 100.0 * hits_ / shots_ : 0);
+    message_text.text = text.str();
+    int rect_size_x = (int)message_text.text.length()*24;
+    message_text.rect = {WINDOW_WIDTH / 2 - rect_size_x / 2, 160, rect_size_x, 60};
+    texts_->addText(std::move(message_text));
+
+
     
     text.str("");
+    text.clear();
     if (final_score_ > high_score_){
         text << "NEW HIGH SCORE!!!: " << final_score_;
         message_text.text = text.str();
@@ -480,6 +507,13 @@ void Game::processEvents(){
         auto key = event.key();
       
         switch(e_type){
+            case EventType::Collision:
+                std::cout << "Spaceship is hit by an asteroid\nGAME - OVER!!!!" << std::endl;
+                final_score_ = score_;
+                prev_state_ = state_;
+                renderer_.pauseTheme();
+                state_ = GameState::GameOver;
+                break;
             case EventType::Pause:
                 this->pause();
                 prev_state_ = state_;
@@ -513,10 +547,12 @@ void Game::processEvents(){
                     missiles_.emplace_back(missile_l);
                     missiles_.emplace_back(missile_r);
                     renderer_.playSFX(SFX_Type::Launch);
+                    shots_++;
                 }
                 break;
             case EventType::Hit:
                 renderer_.playSFX(SFX_Type::Hit);
+                hits_++;
                 break;
             case EventType::Name:
                 state_ = GameState::PlayerName;
@@ -643,20 +679,25 @@ void Game::reset()
     asteroid_time_ = std::chrono::system_clock::now();
     score_ = 0;
     level_ = 0;
+    hits_ = 0;
+    shots_ = 0;
     asteroids_interval_ = INITIAL_INTERVAL;
     createAstroid();
+    renderer_.playTheme();
 }
 
 void Game::pause()
 {
     // Save the the delta between the clock and the last asteroid
     asteroid_delta_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - asteroid_time_);
+    renderer_.pauseTheme();
 }
 
 void Game::resume()
 {
     // Set the last asteroid time, according to the current system clock
     asteroid_time_ = std::chrono::system_clock::now() - asteroid_delta_;
+    renderer_.playTheme();
 }
 // Writes the high score value to the data file
 void Game::updateHighScore()
