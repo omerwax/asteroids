@@ -72,6 +72,14 @@ bool Renderer::init()
         printf( "Failed to load sfx sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         return false;
     }
+
+    // load background theme
+    theme_ = Mix_LoadMUS((fs::current_path().parent_path().string() + "/sfx/theme.wav").c_str());
+    if( theme_ == NULL )
+    {
+        printf( "Failed to load theme music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return  false;
+    }
     
     this->initiated_ = true;
 
@@ -86,6 +94,7 @@ Renderer::~Renderer()
         Mix_FreeChunk(launch_sfx_);
         Mix_FreeChunk(hit_sfx_);
         Mix_FreeChunk(game_over_sfx_);
+        Mix_FreeMusic( theme_ );
         SDL_Quit();
         TTF_Quit();
     }
@@ -235,4 +244,20 @@ void Renderer::playSFX(const SFX_Type& type)
             break;
     }
     
+}
+
+void Renderer::playTheme()
+{
+    auto playing = Mix_PlayingMusic();
+    if (!playing){
+        Mix_PlayMusic( theme_, -1 );
+    } 
+}
+
+void Renderer::pauseTheme()
+{
+    auto playing = Mix_PlayingMusic();
+    if (playing != 0){
+        Mix_PauseMusic();
+    }
 }

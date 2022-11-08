@@ -57,6 +57,8 @@ bool Game::init()
     createBackground();
 
     createSpaceship();
+
+    renderer_.playTheme();
     
     state_ = GameState::Idle;
 

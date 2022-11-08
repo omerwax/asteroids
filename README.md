@@ -44,6 +44,7 @@ make
 - include/ - a folder that contains all the required header files
 - img/ - a folder that contains all the required image files
 - sfx/ - a folder that contains the sound effects
+        Tanks for [Touda](https://freesound.org/people/Touda/sounds/614130/) for the game theme
 - fonts/ - folder that contains TrueType font files required for text rendering
 - cmake/ - a folder that contains cmake modules for finding SDL2 and SDL2_ttf libs automatically, 
            taken from [here](https://github.com/toivjon/sdl2-space-invaders)

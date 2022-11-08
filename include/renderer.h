@@ -35,6 +35,8 @@ namespace asteroids
         void render(std::shared_ptr<AnimatedEntity> entity);
 
         void playSFX(const SFX_Type& type);
+        void playTheme();
+        void pauseTheme();
         void clear();
         void present();
         SDL_Texture * createTextureFromText(std::string, SDL_Color);
@@ -50,6 +52,7 @@ namespace asteroids
         Mix_Chunk * launch_sfx_;
         Mix_Chunk * hit_sfx_;
         Mix_Chunk * game_over_sfx_;
+        Mix_Music * theme_;
     };
 }
 
