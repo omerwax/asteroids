@@ -22,22 +22,28 @@ Other machines types installation instructions:
 
 ## Cloning, Building and Running
 
-- Clone this project
+### Clone this project
 ```sh
 git clone git@github.com:omerwax/asteroids.git
 ```
-- Build
+### Build
 ```sh
 cd asteroids
+```
+```sh
 mkdir build && cd build
+```
+```sh
 cmake -DCMAKE_BUILD_TYPE=Release ../
+```
+```sh
 make
 ```
-- Run
+### Run
 ```sh
 ./asteroids
 ```
-- Enjoy!!!
+### Enjoy!!!
 
 ## Directory and Files structure
 - src/ - a folder that contains all the required source code files
